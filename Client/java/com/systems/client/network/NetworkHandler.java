@@ -1,9 +1,6 @@
 package com.systems.client.network;
 
 
-import java.net.ServerSocket;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 public class NetworkHandler
 {
@@ -24,15 +21,6 @@ public class NetworkHandler
 	public NetworkHandler()
 	{
 		INSTANCE = this;
-
-		ServerSocket socket = new ServerSocket(PORT);
-		try 
-		{
-			while(true)
-			{
-				
-			}
-		}
 	}
 	
 	
@@ -43,5 +31,15 @@ public class NetworkHandler
 			INSTANCE = new NetworkHandler();
 		}
 		return INSTANCE;
+	}
+	
+	public String getHostName()
+	{
+		return HOSTNAME;
+	}
+	
+	public int getPort()
+	{
+		return PORT;
 	}
 }
