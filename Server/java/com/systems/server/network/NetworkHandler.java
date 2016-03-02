@@ -2,8 +2,10 @@ package com.systems.server.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 public class NetworkHandler
 {
@@ -29,7 +31,8 @@ public class NetworkHandler
 			// Or if we want the server to stop
 			while(true)
 			{
-				this.listener = new NetworkListener(socket);
+				this.listener = new NetworkListener(socket.accept());
+				this.listener.start();
 			}
 		}
 		finally
@@ -56,26 +59,33 @@ public class NetworkHandler
 	
 	public class NetworkListener extends Thread
 	{
-		
-		private String hostname;
-		private int port;
-		
-		private ServerSocket socket;
+		private Socket socket;
 		private BufferedReader in;
 		private PrintWriter out;
 		
 		
-		public NetworkListener(ServerSocket socket)
+		public NetworkListener(Socket socket)
 		{
 			this.socket = socket;
-			
-			this.hostname = HOSTNAME;
-			this.port = PORT;
 		}
 		
 		@Override
 		public void run()
 		{
+			try
+			{
+				in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				out = new PrintWriter(socket.getOutputStream(), true);
+				
+				/*
+				 * Implement some kind of packet handler / Handling 
+				 * probably do it with switch (string)
+				 */
+			} 
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 }
