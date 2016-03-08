@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.systems.server.main.Main;
+
 public class NetworkHandler
 {
 
@@ -81,6 +83,12 @@ public class NetworkHandler
 				 * Implement some kind of packet handler / Handling 
 				 * probably do it with switch (string)
 				 */
+				while(Main.RUNNING)
+				{
+					int packet = in.read();
+					System.out.println(packet);
+					
+				}
 			} 
 			catch (IOException e)
 			{

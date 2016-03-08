@@ -1,13 +1,28 @@
 package com.systems.server.main;
 
-public class Main {
+import java.io.IOException;
 
+import com.systems.server.network.NetworkHandler;
+
+public class Main 
+{
+
+	public static boolean RUNNING = false;
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) 
 	{
-		
+		RUNNING = true;
+		try 
+		{
+			NetworkHandler networkHandler = new NetworkHandler();
+		} 
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }
