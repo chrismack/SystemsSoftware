@@ -1,5 +1,9 @@
 package com.systems.client.main;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import com.systems.client.network.ChatClient;
 import com.systems.client.network.NetworkHandler;
 
 public class Main 
@@ -13,7 +17,18 @@ public class Main
 	public static void main(String[] args) 
 	{
 		RUNNING = true;
+		System.out.println("Client running");
 		NetworkHandler netHandler = new NetworkHandler();
+		netHandler.sendMessage("Test message");
+		System.out.println("Client sent message");
+		try
+		{
+			System.in.read();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

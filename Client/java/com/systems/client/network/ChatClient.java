@@ -14,14 +14,12 @@ public class ChatClient implements Runnable
 
 	private NetworkHandler network;
 
-	private BufferedReader in;
-	
-	private PrintWriter out;
+
 	
 	public ChatClient()
 	{
 		network = NetworkHandler.getNetworkHandler();
-
+		
 	}
 
 	public void run()
@@ -35,31 +33,6 @@ public class ChatClient implements Runnable
 		 * appropriate class
 		 */
 		
-		String address = network.getHostName();
-		int port = network.getPort();
-		
-		try
-		{
-			Socket socket = new Socket(address, port);
-			in = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(socket.getOutputStream());
-			
-			while(Main.RUNNING)
-			{
-				
-			}
-			
-			
-		}
-		catch (UnknownHostException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 }
