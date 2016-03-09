@@ -42,7 +42,7 @@ public class NetworkHandler implements Runnable
 			this.socket = new Socket(address, port);
 			in = new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(socket.getOutputStream());
+			out = new PrintWriter(socket.getOutputStream(), true);
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
@@ -72,7 +72,7 @@ public class NetworkHandler implements Runnable
 	
 	public void sendMessage(String message)
 	{
-		this.out.print(message);
+		this.out.println(message);
 	}
 	
 	public void sendBytes(byte[] b) throws IOException
