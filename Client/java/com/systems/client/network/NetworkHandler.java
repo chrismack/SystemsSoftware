@@ -1,11 +1,12 @@
 package com.systems.client.network;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import com.systems.client.main.Main;
 
@@ -22,6 +23,8 @@ public class NetworkHandler implements Runnable
 	private Socket socket;;
 	private BufferedReader in;	
 	private PrintWriter out; 
+	private DataInputStream din;
+	private DataOutputStream dout;
 	
 	/*
 	 * For multi-client handling
@@ -42,7 +45,9 @@ public class NetworkHandler implements Runnable
 			this.socket = new Socket(address, port);
 			in = new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
+			din = new DataInputStream(socket.getInputStream()); 
 			out = new PrintWriter(socket.getOutputStream(), true);
+			dout = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
@@ -73,6 +78,12 @@ public class NetworkHandler implements Runnable
 	public void sendMessage(String message)
 	{
 		this.out.println(message);
+	}
+	
+	public void sendMessage(byte[] b) throws IOException
+	{
+		//this.out.println(b);
+		this.dout.write(b);
 	}
 	
 	public void sendBytes(byte[] b) throws IOException

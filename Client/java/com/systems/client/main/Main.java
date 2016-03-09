@@ -1,9 +1,8 @@
 package com.systems.client.main;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
-import com.systems.client.network.ChatClient;
 import com.systems.client.network.NetworkHandler;
 
 public class Main 
@@ -13,13 +12,15 @@ public class Main
 	
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) 
+	public static void main(String[] args) throws IOException 
 	{
 		RUNNING = true;
 		System.out.println("Client running");
 		NetworkHandler netHandler = new NetworkHandler();
 		netHandler.sendMessage("Test message");
+		netHandler.sendBytes("jsbhfjhebfhbsebfsebfb".getBytes());
 		System.out.println("Client sent message");
 		try
 		{
