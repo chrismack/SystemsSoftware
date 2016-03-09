@@ -12,10 +12,10 @@ import com.systems.server.main.Main;
 public class NetworkHandler
 {
 
-	private static String HOSTNAME = "localhost";
-	private static int PORT = 4556;
+	private static final int PORT = 4556;
 	
 	private NetworkListener listener;
+	
 	/*
 	 * Static singleton instance of the networkHandler
 	 */
@@ -25,21 +25,24 @@ public class NetworkHandler
 	{
 		INSTANCE = this;
 		
+		// TODO : This should be changed to some kind of flag to properly detect when the server is stopping
+		// Or if we want the server to stop
 		
-		ServerSocket socket = new ServerSocket(PORT);
-		try
+		ServerSocket serverSocket = new ServerSocket(PORT);
+		
+		while(true)
 		{
-			// TODO : This should be changed to some kind of flag to properly detect when the server is stopping
-			// Or if we want the server to stop
-			while(true)
+			try
 			{
-				this.listener = new NetworkListener(socket.accept());
-				this.listener.start();
+				while(true)
+				{
+					/*this.listener =*/ new NetworkListener(serverSocket.accept()).start();
+				}
 			}
-		}
-		finally
-		{
-			socket.close();
+			finally
+			{
+				serverSocket.close();
+			}
 		}
 	}
 	
@@ -59,7 +62,7 @@ public class NetworkHandler
 		return INSTANCE;
 	}
 	
-	public class NetworkListener extends Thread
+	private static class NetworkListener extends Thread
 	{
 		private Socket socket;
 		private BufferedReader in;
@@ -76,6 +79,7 @@ public class NetworkHandler
 		{
 			try
 			{
+				System.out.println("Listener thread");
 				in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				out = new PrintWriter(socket.getOutputStream(), true);
 				
@@ -85,15 +89,25 @@ public class NetworkHandler
 				 */
 				while(Main.RUNNING)
 				{
-					int packet = in.read();
+					String packet = in.readLine();
 					System.out.println(packet);
 					
 				}
 			} 
-			catch (IOException e)
+			catch (IOException e) 
 			{
-				e.printStackTrace();
-			}
+                System.out.println(e);
+            } 
+			finally
+            {
+	            try 
+	            {
+	                socket.close();
+	            } 
+	            catch (IOException e) 
+	            {
+	            }
+            }
 		}
 	}
 }

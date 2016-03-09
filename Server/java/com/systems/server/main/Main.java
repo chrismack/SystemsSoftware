@@ -15,6 +15,7 @@ public class Main
 	public static void main(String[] args) 
 	{
 		RUNNING = true;
+		System.out.println("Server running");
 		try 
 		{
 			NetworkHandler networkHandler = new NetworkHandler();
