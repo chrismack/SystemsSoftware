@@ -1,11 +1,13 @@
 package com.systems.server.network;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 import com.systems.server.main.Main;
 
@@ -15,6 +17,8 @@ public class NetworkHandler
 	private static final int PORT = 4556;
 	
 	private NetworkListener listener;
+	
+	
 	
 	/*
 	 * Static singleton instance of the networkHandler
@@ -67,7 +71,7 @@ public class NetworkHandler
 		private Socket socket;
 		private BufferedReader in;
 		private PrintWriter out;
-		
+		private DataInputStream din;
 		
 		public NetworkListener(Socket socket)
 		{
@@ -82,15 +86,16 @@ public class NetworkHandler
 				System.out.println("Listener thread");
 				in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				out = new PrintWriter(socket.getOutputStream(), true);
-				
+				din = new DataInputStream(socket.getInputStream());
 				/*
 				 * Implement some kind of packet handler / Handling 
 				 * probably do it with switch (string)
 				 */
 				while(Main.RUNNING)
 				{
-					String packet = in.readLine();
-					System.out.println(packet);
+					String packet = new String(in.readLine().getBytes());
+					//System.out.println(packet);
+					System.out.println(din.read(in.readLine().getBytes()));
 					
 				}
 			} 
