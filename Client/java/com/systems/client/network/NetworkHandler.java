@@ -45,9 +45,9 @@ public class NetworkHandler implements Runnable
 			this.socket = new Socket(address, port);
 			in = new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));
-			din = new DataInputStream(socket.getInputStream()); 
+			//din = new DataInputStream(socket.getInputStream()); 
 			out = new PrintWriter(socket.getOutputStream(), true);
-			dout = new DataOutputStream(socket.getOutputStream());
+			//dout = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
@@ -78,12 +78,6 @@ public class NetworkHandler implements Runnable
 	public void sendMessage(String message)
 	{
 		this.out.println(message);
-	}
-	
-	public void sendMessage(byte[] b) throws IOException
-	{
-		//this.out.println(b);
-		this.dout.write(b);
 	}
 	
 	public void sendBytes(byte[] b) throws IOException

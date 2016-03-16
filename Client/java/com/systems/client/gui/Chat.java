@@ -10,13 +10,15 @@ import javax.swing.JList;
 import java.awt.Color;
 import java.awt.List;
 import java.awt.Font;
+
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class Chat extends JFrame {
 
-	private JPanel frmChat;
+	private JFrame frmChat;
 	private JTextField txtMessage;
 
 	/**
@@ -39,8 +41,19 @@ public class Chat extends JFrame {
 	 * Create the frame.
 	 */
 	public Chat() {
+		frmChat = new JFrame();
+		frmChat.getContentPane().setBackground(Color.WHITE);
+		frmChat.setTitle("Home : ");
+		frmChat.setBackground(Color.WHITE);
+		frmChat.setResizable(false);
+		frmChat.setBounds(100, 100, 620, 724);
+		frmChat.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmChat.getContentPane().setLayout(null);
+		
+		this.setResizable(false);
 		getContentPane().setBackground(Color.WHITE);
 		getContentPane().setLayout(null);
+		
 		
 		List listFriends = new List();
 		listFriends.setFont(new Font("Calibri Light", Font.PLAIN, 14));
@@ -53,6 +66,7 @@ public class Chat extends JFrame {
 		getContentPane().add(lblFriends);
 		
 		JTextArea textArea_chatMessages = new JTextArea();
+		textArea_chatMessages.setBorder(BorderFactory.createLineBorder(Color.gray));
 		textArea_chatMessages.setBounds(165, 14, 382, 291);
 		getContentPane().add(textArea_chatMessages);
 		
@@ -62,9 +76,6 @@ public class Chat extends JFrame {
 		txtMessage.setColumns(10);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 573, 401);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
+
 	}
 }

@@ -20,7 +20,7 @@ public class Main
 		System.out.println("Client running");
 		NetworkHandler netHandler = new NetworkHandler();
 		netHandler.sendMessage("Test message");
-		netHandler.sendBytes("jsbhfjhebfhbsebfsebfb".getBytes());
+		
 		System.out.println("Client sent message");
 		try
 		{
