@@ -6,6 +6,9 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import com.systems.client.network.NetworkHandler;
+
 import javax.swing.JLabel;
 import java.awt.Color;
 import java.awt.Font;
@@ -18,19 +21,22 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.awt.event.ActionEvent;
+import javax.swing.JPasswordField;
 
-public class Registration extends JFrame
+public class Registration
 {
-
+	private JFrame frmReg;
 	private JPanel contentPane;
 	private JTextField textFieldUserName;
 	private JTextField textFieldPlaceOfBirth;
 	private JTextField textFieldDateOfBirth;
+	private JPasswordField passwordField;
+	private JPasswordField passwordFieldConfirm;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void init()
+	public void init()
 	{
 		EventQueue.invokeLater(new Runnable()
 		{
@@ -38,8 +44,8 @@ public class Registration extends JFrame
 			{
 				try
 				{
-					Registration frame = new Registration();
-					frame.setVisible(true);
+					//Login window = new Login();
+					frmReg.setVisible(true);
 				} catch (Exception e)
 				{
 					e.printStackTrace();
@@ -48,19 +54,26 @@ public class Registration extends JFrame
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public Registration()
 	{
-		setBackground(Color.GRAY);
-		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 700, 350);
+		initialize();
+	}
+	
+	/**
+	 * Create the frame.
+	 * @return 
+	 */
+	public void initialize()
+	{
+		frmReg = new JFrame();
+		frmReg.setBackground(Color.GRAY);
+		frmReg.setResizable(false);
+		frmReg.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmReg.setBounds(100, 100, 700, 350);
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
+		frmReg.setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
 		final JLabel lblUsername = new JLabel("Username");
@@ -123,6 +136,7 @@ public class Registration extends JFrame
 		contentPane.add(listMusicPreferences);
 		
 		final JButton btnRegister = new JButton("Register");
+		
 		btnRegister.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnRegister.setBounds(29, 257, 89, 23);
 		contentPane.add(btnRegister);
@@ -137,9 +151,46 @@ public class Registration extends JFrame
 		btnLogin.setBounds(155, 257, 89, 23);
 		contentPane.add(btnLogin);
 		
-		/*
-		 * Actions
-		 */
+		JLabel lblPassword = new JLabel("Password");
+		lblPassword.setFont(new Font("Calibri Light", Font.PLAIN, 14));
+		lblPassword.setBounds(48, 174, 62, 14);
+		contentPane.add(lblPassword);
+		
+		JLabel lblReenterPassword = new JLabel("reEnter Password");
+		lblReenterPassword.setFont(new Font("Calibri Light", Font.PLAIN, 14));
+		lblReenterPassword.setBounds(10, 199, 100, 14);
+		contentPane.add(lblReenterPassword);
+		
+		passwordField = new JPasswordField();
+		passwordField.setBounds(132, 171, 86, 20);
+		contentPane.add(passwordField);
+		
+		passwordFieldConfirm = new JPasswordField();
+		passwordFieldConfirm.setBounds(132, 196, 86, 20);
+		contentPane.add(passwordFieldConfirm);
+		
+		// =========================================== //
+		// 					Actions					   //
+		// =========================================== //
+		
+		btnRegister.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				//if any of the fields are empty
+				if(listMusicPreferences.getItemCount()      < 1 || textFieldUserName.getText().length()     < 1 ||
+				   textFieldPlaceOfBirth.getText().length() < 1 || textFieldDateOfBirth.getText().length()  < 1)
+				{
+					System.out.println("sending reg message");
+					NetworkHandler.getNetworkHandler().sendMessage("REG:HELLOTHERE");
+				}
+				else // Everything is valid send reg information
+				{
+					
+					System.out.println("sending reg message");
+					NetworkHandler.getNetworkHandler().sendMessage("REG:HELLOTHERE");
+				}
+			}
+		});
 		
 		/*
 		 * Add item to music list 
@@ -162,7 +213,7 @@ public class Registration extends JFrame
 			{
 				Login login = new Login();
 				login.init();
-				dispose();
+				frmReg.dispose();
 			}
 		});
 	}

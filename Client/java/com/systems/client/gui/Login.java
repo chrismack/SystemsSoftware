@@ -12,7 +12,6 @@ import javax.swing.JButton;
 
 public class Login
 {
-
 	private JFrame frmLogin;
 	private JPasswordField passwordField;
 	private JTextField txtUsername;

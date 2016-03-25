@@ -43,18 +43,14 @@ public class NetworkHandler implements Runnable
 		try
 		{
 			this.socket = new Socket(address, port);
-			in = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-			//din = new DataInputStream(socket.getInputStream()); 
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(), true);
-			//dout = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
 	
 	public static NetworkHandler getNetworkHandler()
 	{
