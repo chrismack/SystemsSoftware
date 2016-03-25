@@ -19,11 +19,13 @@ public class Main
 		try 
 		{
 			NetworkHandler networkHandler = new NetworkHandler();
+			networkHandler.start();
 		} 
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
+		System.out.println("SERVER");
 	}
 
 }
