@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.List;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,26 +17,25 @@ import com.systems.client.network.INetworkMessage;
 
 public class Home extends GuiScreen implements INetworkMessage
 {
-	private static String username;
+	private String username;
+	private String[] connectedUsers;
 	private JFrame frmHome;
 	private JTextField textFieldPost;
-	
+	private List listConnectedPeople;
 
 	/**
 	 * Launch the application.
 	 */
 	public void init()
 	{
-		username = "Test";
 		EventQueue.invokeLater(new Runnable()
 		{
 			public void run()
 			{
 				try
 				{
-					Home window = new Home();
-					window.frmHome.setVisible(true);
-					window.frmHome.setTitle("Home: " + username);
+					frmHome.setVisible(true);
+					frmHome.setTitle("Home: " + username);
 				} catch (Exception e)
 				{
 					e.printStackTrace();
@@ -47,9 +47,11 @@ public class Home extends GuiScreen implements INetworkMessage
 	/**
 	 * Create the application.
 	 */
-	public Home()
+	public Home(String username, String[] connectedUsers)
 	{
 		INSTANCE = this;
+		this.username = username;
+		this.connectedUsers = connectedUsers;
 		initialize();
 	}
 
@@ -137,7 +139,7 @@ public class Home extends GuiScreen implements INetworkMessage
 		lblConnectedPeople.setBounds(32, 439, 122, 14);
 		frmHome.getContentPane().add(lblConnectedPeople);
 		
-		List listConnectedPeople = new List();
+		listConnectedPeople = new List();
 		listConnectedPeople.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		listConnectedPeople.setBounds(32, 459, 122, 167);
 		frmHome.getContentPane().add(listConnectedPeople);
@@ -175,12 +177,31 @@ public class Home extends GuiScreen implements INetworkMessage
 		btnRefuse.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnRefuse.setBounds(465, 513, 97, 43);
 		frmHome.getContentPane().add(btnRefuse);
+		
+		for(String connectedUser : connectedUsers)
+		{
+			listConnectedPeople.add(connectedUser);
+		}
 	}
 
 	@Override
 	public void processMessage(String message)
 	{
-		// TODO Auto-generated method stub
+		message = message.substring(5);
 		
+		if(message.startsWith("CONNECTUSER="))
+		{
+			message = message.substring(12);
+			listConnectedPeople.add(message);
+		}
+		else if(message.startsWith("REMOVEUSER="))
+		{
+			message = message.substring(11);
+			if(Arrays.asList(listConnectedPeople.getItems()).contains(message))
+			{
+				listConnectedPeople.remove(message);
+				
+			}
+		}
 	}
 }

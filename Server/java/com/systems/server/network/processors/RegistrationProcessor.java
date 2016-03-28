@@ -21,12 +21,22 @@ public class RegistrationProcessor implements INetworkMessage
 	{
 		message = message.replaceFirst("REG:", "");
 		String[] messageArray = message.split("[|]");
+		
+		String[] likedMusic = messageArray[4].split(",");
+		
 		if(!Utils.userExists(messageArray[0]))
 		{
 			String sql = "INSERT INTO Users (username, password, dateOfBirth, placeOfBirth) VALUES('" 
 					+ messageArray[0] + "','" + messageArray[1] + "','" 
 					+ messageArray[2] + "','" + messageArray[3] + "');";
 			sqlHandler.insertValues(sql);
+			
+			// length - 1 to negate the extra comma that is sent at the end
+			for(int i = 0; i < likedMusic.length - 1; i++)
+			{
+				String musicSQL = "INSERT INTO LikedMusic (username, genre) VALUES ('" + messageArray[0] + "','" + likedMusic[i] + "');";
+				sqlHandler.insertValues(musicSQL);
+			}
 			NetworkHandler.getNetwork().sendMessage("REG:SUCCESS", socket);
 		}
 		else

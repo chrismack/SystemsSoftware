@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.systems.client.gui.Home;
 import com.systems.client.gui.Login;
 import com.systems.client.gui.Registration;
 
@@ -125,6 +126,9 @@ public class NetworkHandler extends Thread
 							break;
 						case "LOGIN":
 							networkMessage = (INetworkMessage) Login.getInstance();
+							break;
+						case "HOME":
+							networkMessage = (INetworkMessage) Home.getInstance();
 							break;
 						default:
 							break;

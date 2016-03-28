@@ -3,6 +3,8 @@ package com.systems.server.network.processors;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import com.systems.server.main.Utils;
 import com.systems.server.network.INetworkMessage;
@@ -32,15 +34,42 @@ public class LoginProcessor implements INetworkMessage
 				ResultSet userPassword = sqlHandler.eqecuteCommand("SELECT password FROM Users WHERE username = '" + messageArray[0] + "';");
 				if(userPassword.next())
 				{
-					String pw, pw1 = "";
-					System.out.println(pw = userPassword.getString(1));
-					System.out.println(pw1 = messageArray[1]);
 					if(messageArray[1].startsWith(userPassword.getString(1)))
 					{
+						/*
+						 * Login success
+						 */
+						
+						//Send all connected clients
+						String connectedUsersMessage = "";
+						for(String connectedUser : NetworkHandler.getNetwork().connectedUser.keySet())
+						{
+							connectedUsersMessage += connectedUser + ",";
+						}
+						// Send connected users if anyone is connected
+						if(connectedUsersMessage.length() > 1)
+						{
+							connectedUsersMessage = connectedUsersMessage.substring(0, connectedUsersMessage.length() - 1);
+							NetworkHandler.getNetwork().sendMessage("LOGIN:CONNECTED=" + connectedUsersMessage, socket);
+						}
+						
+						//Send successful login message
 						NetworkHandler.getNetwork().sendMessage("LOGIN:SUCCESS", socket);
-						NetworkHandler.getNetwork().connectedUser.put(messageArray[0], socket);
+						
+						/*
+						 * Tell all other connected clients that they have connected
+						 */
+						Iterator<Entry<String, Socket>> it = NetworkHandler.getNetwork().connectedUser.entrySet().iterator();
+		                while (it.hasNext())
+		                {
+		                	 Entry<String, Socket> pair = it.next();
+		                	 NetworkHandler.getNetwork().sendMessage("HOME:CONNECTUSER=" + messageArray[0], pair.getValue());
+		                }
+		                
+		                // Add client to connected users list
+		                NetworkHandler.getNetwork().connectedUser.put(messageArray[0], socket);
 					}
-					else
+					else // Auth failed
 					{
 						NetworkHandler.getNetwork().sendMessage("LOGIN:FAIL", socket);
 					}

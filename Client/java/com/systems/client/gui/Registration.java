@@ -67,8 +67,8 @@ public class Registration extends GuiScreen implements INetworkMessage
 	public void initialize()
 	{
 		frmReg = new JFrame();
-		frmReg.setBackground(Color.GRAY);
 		frmReg.setResizable(false);
+		frmReg.setBackground(Color.GRAY);
 		frmReg.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmReg.setBounds(100, 100, 700, 350);
 		contentPane = new JPanel();
@@ -190,6 +190,13 @@ public class Registration extends GuiScreen implements INetworkMessage
 				String passText = new String(passwordField.getPassword());
 				String passTextConf = new String(passwordFieldConfirm.getPassword());
 				
+				String likedMusic = "";
+				
+				for(String music : listMusicPreferences.getItems())
+				{
+					likedMusic += music + ",";
+				}
+				
 				//if any of the fields are empty
 				if(listMusicPreferences.getItemCount()      < 1 || username.length()     < 1 ||
 				   placeOfBirth.length() < 1 || dob.length()  < 1)
@@ -209,7 +216,8 @@ public class Registration extends GuiScreen implements INetworkMessage
 					NetworkHandler.getNetworkHandler().sendMessage("REG:" + username + "|" 
 																		  + passText + "|" 
 																		  + dob + "|" 
-																		  + placeOfBirth);
+																		  + placeOfBirth + "|"
+																		  + likedMusic);
 				}
 			}
 		});

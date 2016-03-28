@@ -5,8 +5,6 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,7 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import com.systems.client.main.Utils;
 import com.systems.client.network.INetworkMessage;
 import com.systems.client.network.NetworkHandler;
 
@@ -24,6 +21,8 @@ public class Login extends GuiScreen implements INetworkMessage
 	private JPasswordField passwordField;
 	private JTextField txtUsername;
 	private JLabel lblError;
+	
+	private String[] connectedUsers = {};
 
 	/**
 	 * Launch the application.
@@ -129,14 +128,19 @@ public class Login extends GuiScreen implements INetworkMessage
 		
 		if(message.startsWith("SUCCESS"))
 		{
-			Home home = new Home();
+			Home home = new Home(txtUsername.getText(), connectedUsers);
 			home.init();
 			frmLogin.setVisible(false);
 			frmLogin.dispose();
 		}
-		else
+		else if (message.startsWith("FAIL"))
 		{
-			System.out.println("login failed");
+			lblError.setText("Could not log in please try again");
+		}
+		else if (message.startsWith("CONNECTED="))
+		{
+			message = message.substring(10);
+			connectedUsers = message.split(",");
 		}
 	}
 }

@@ -8,7 +8,11 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import com.systems.server.main.Utils;
 import com.systems.server.network.processors.LoginProcessor;
 import com.systems.server.network.processors.RegistrationProcessor;
 import com.systems.server.sql.SQLHandler;
@@ -182,6 +186,15 @@ public class NetworkHandler extends Thread
 	            try 
 	            {
 	                socket.close();
+	                String username = (String) Utils.getKeyFromValue(connectedUser, socket);
+	                connectedUser.values().remove(socket);
+	                
+	                Iterator<Entry<String, Socket>> it = connectedUser.entrySet().iterator();
+	                while (it.hasNext())
+	                {
+	                	 Entry<String, Socket> pair = it.next();
+	                	 sendMessage("HOME:REMOVEUSER=" + username, pair.getValue());
+	                }
 	            } 
 	            catch (IOException e) 
 	            {
