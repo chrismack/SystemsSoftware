@@ -9,6 +9,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 
+import com.systems.server.network.processors.LoginProcessor;
+import com.systems.server.network.processors.RegistrationProcessor;
 import com.systems.server.sql.SQLHandler;
 
 public class NetworkHandler extends Thread

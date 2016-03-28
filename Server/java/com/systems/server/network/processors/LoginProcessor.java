@@ -1,10 +1,12 @@
-package com.systems.server.network;
+package com.systems.server.network.processors;
 
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.systems.server.main.Utils;
+import com.systems.server.network.INetworkMessage;
+import com.systems.server.network.NetworkHandler;
 import com.systems.server.sql.SQLHandler;
 
 public class LoginProcessor implements INetworkMessage

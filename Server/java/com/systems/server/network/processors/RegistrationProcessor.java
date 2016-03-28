@@ -1,8 +1,10 @@
-package com.systems.server.network;
+package com.systems.server.network.processors;
 
 import java.net.Socket;
 
 import com.systems.server.main.Utils;
+import com.systems.server.network.INetworkMessage;
+import com.systems.server.network.NetworkHandler;
 import com.systems.server.sql.SQLHandler;
 
 public class RegistrationProcessor implements INetworkMessage
@@ -21,7 +23,10 @@ public class RegistrationProcessor implements INetworkMessage
 		String[] messageArray = message.split("[|]");
 		if(!Utils.userExists(messageArray[0]))
 		{
-			sqlHandler.insertValues("INSERT INTO Users (username, password) VALUES('" + messageArray[0] + "','" + messageArray[1] + "');");
+			String sql = "INSERT INTO Users (username, password, dateOfBirth, placeOfBirth) VALUES('" 
+					+ messageArray[0] + "','" + messageArray[1] + "','" 
+					+ messageArray[2] + "','" + messageArray[3] + "');";
+			sqlHandler.insertValues(sql);
 			NetworkHandler.getNetwork().sendMessage("REG:SUCCESS", socket);
 		}
 		else
