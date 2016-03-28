@@ -9,6 +9,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 
+import com.systems.server.sql.SQLHandler;
+
 public class NetworkHandler extends Thread
 {
 
@@ -18,16 +20,16 @@ public class NetworkHandler extends Thread
 	
 	private HashMap<String, Socket> connectedUser = new HashMap<String, Socket>();
 	
-	
+	private SQLHandler sqlHandler;
 	/*
 	 * Static singleton instance of the networkHandler
 	 */
 	private static NetworkHandler INSTANCE;
 	
-	public NetworkHandler() throws IOException
+	public NetworkHandler(SQLHandler sqlHandler) throws IOException
 	{
 		INSTANCE = this;
-		
+		this.sqlHandler = sqlHandler;
 		// TODO : This should be changed to some kind of flag to properly detect when the server is stopping
 		// Or if we want the server to stop
 		
@@ -79,7 +81,7 @@ public class NetworkHandler extends Thread
 		{
 			try
 			{
-				INSTANCE = new NetworkHandler();
+				INSTANCE = new NetworkHandler(SQLHandler.getInstance());
 			} 
 			catch (IOException e)
 			{
@@ -89,7 +91,13 @@ public class NetworkHandler extends Thread
 		return INSTANCE;
 	}
 	
-	private static class NetworkListener extends Thread
+	
+	public void sendBytes(byte[] b, Socket socket) throws IOException
+	{
+		socket.getOutputStream().write(b);
+	}
+	
+	private class NetworkListener extends Thread
 	{
 		private Socket socket;
 		private BufferedReader in;
@@ -116,7 +124,8 @@ public class NetworkHandler extends Thread
 
 				int loopCount = 0;
 				int count;
-				String testMessage = new String();
+				String message = new String();
+				
 				while ((count = socket.getInputStream().read(bytes)) > 0)
 				{
 					if(loopCount == 0)
@@ -130,26 +139,37 @@ public class NetworkHandler extends Thread
 							dataType += (char)bytes[i];
 						}
 					}
-					switch (dataType)
+					
+					if(count >= 8 * 1024)
 					{
-					case "TEST": // Starts with 1
-						System.out.println("THIS IS A TEST");
-					case "TEST2": // Starts with 2
-					case "REG":
-						testMessage += new String(bytes, 0, count);
-						if(count < 8 * 1024)
+						message += new String(bytes, 0, count);
+					}
+					else
+					{
+						message += new String(bytes, 0, count);
+						INetworkMessage messageProcessor = null;
+						
+						switch (dataType)
 						{
-							System.out.println(testMessage);
+						case "REG":
+							messageProcessor = new RegistrationProcessor(sqlHandler);
+							break;
+						case "LOGIN":
+							messageProcessor = new LoginProcessor(sqlHandler);
+							break;
+						default:
+							continue;
 						}
+						
+						if(messageProcessor != null)
+							messageProcessor.processMessage(message, socket);
+						message = "";
+						dataType = "";
+						loopCount = -1;
 					}
 					
 					loopCount++;
 				}
-				System.out.println(dataType);
-				/*
-				 * Implement some kind of packet handler / Handling 
-				 * probably do it with switch (string)
-				 */
 			} 
 			catch (IOException e) 
 			{
@@ -166,5 +186,19 @@ public class NetworkHandler extends Thread
 	            }
             }
 		}
+	}
+
+	public void sendMessage(String message, Socket socket)
+	{
+		PrintWriter writer = null;
+		try
+		{
+			writer = new PrintWriter(socket.getOutputStream(), true);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		writer.println(message);
 	}
 }
