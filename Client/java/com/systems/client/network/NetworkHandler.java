@@ -11,6 +11,7 @@ import java.net.Socket;
 import com.systems.client.gui.Home;
 import com.systems.client.gui.Login;
 import com.systems.client.gui.Registration;
+import com.systems.client.main.Utils;
 
 
 
@@ -135,12 +136,10 @@ public class NetworkHandler extends Thread
 						}
 						
 						if(count < 8 * 1024)
-						{
-							System.out.println(message);
 							networkMessage.processMessage(message);
-							networkMessage = null;
-							message = "";
-						}
+						message = "";
+						dataType = "";
+						loopCount = -1;
 					}
 					loopCount++;
 				}

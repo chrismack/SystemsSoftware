@@ -25,4 +25,10 @@ public class Utils
 		String noQuote = noEsc.replaceAll("'", "");
 		return noQuote;
 	}
+	
+	public static String removeEscapedChars(String str)
+	{
+		String noEsc = str.replaceAll("[\r\n\t\b\f\"\']", "");
+		return noEsc;
+	}
 }

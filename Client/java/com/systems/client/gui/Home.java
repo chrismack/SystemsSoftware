@@ -13,15 +13,27 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.systems.client.main.Utils;
 import com.systems.client.network.INetworkMessage;
+import com.systems.client.network.NetworkHandler;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Home extends GuiScreen implements INetworkMessage
 {
 	private String username;
 	private String[] connectedUsers;
+	private String[] friends;
+	private String[] pendingFriends;
 	private JFrame frmHome;
 	private JTextField textFieldPost;
 	private List listConnectedPeople;
+	private List listRequestsFrom;
+	private List listFriends;
+	private List listFriendInfo;
 
 	/**
 	 * Launch the application.
@@ -47,11 +59,13 @@ public class Home extends GuiScreen implements INetworkMessage
 	/**
 	 * Create the application.
 	 */
-	public Home(String username, String[] connectedUsers)
+	public Home(String username, String[] connectedUsers, String[] friends, String[] pendingFriends)
 	{
 		INSTANCE = this;
 		this.username = username;
 		this.connectedUsers = connectedUsers;
+		this.friends = friends;
+		this.pendingFriends = pendingFriends;
 		initialize();
 	}
 
@@ -84,17 +98,12 @@ public class Home extends GuiScreen implements INetworkMessage
 		lblSharedSongs.setBounds(410, 28, 84, 14);
 		frmHome.getContentPane().add(lblSharedSongs);
 		
-		List listFriends = new List();
+		listFriends = new List();
+		
+		
 		listFriends.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		listFriends.setBounds(32, 48, 122, 167);
 		frmHome.getContentPane().add(listFriends);
-		
-		JTextArea textAreaInformation = new JTextArea();
-		textAreaInformation.setFont(new Font("Calibri Light", Font.PLAIN, 14));
-		textAreaInformation.setEditable(false);
-		textAreaInformation.setBorder(BorderFactory.createLineBorder(Color.gray));
-		textAreaInformation.setBounds(180, 48, 200, 167);
-		frmHome.getContentPane().add(textAreaInformation);
 		
 		List listShareSongs = new List();
 		listShareSongs.setFont(new Font("Calibri Light", Font.PLAIN, 14));
@@ -145,6 +154,7 @@ public class Home extends GuiScreen implements INetworkMessage
 		frmHome.getContentPane().add(listConnectedPeople);
 		
 		JButton btnRequestFriendship = new JButton("<html>Friendship <br> Request<html>");
+		
 		btnRequestFriendship.setToolTipText("sdfsdf");
 		btnRequestFriendship.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnRequestFriendship.setBounds(174, 459, 97, 43);
@@ -156,7 +166,7 @@ public class Home extends GuiScreen implements INetworkMessage
 		btnChat.setBounds(174, 513, 97, 43);
 		frmHome.getContentPane().add(btnChat);
 		
-		List listRequestsFrom = new List();
+		listRequestsFrom = new List();
 		listRequestsFrom.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		listRequestsFrom.setBounds(327, 459, 122, 167);
 		frmHome.getContentPane().add(listRequestsFrom);
@@ -173,22 +183,100 @@ public class Home extends GuiScreen implements INetworkMessage
 		frmHome.getContentPane().add(btnAccept);
 		
 		JButton btnRefuse = new JButton("Refuse");
+		
 		btnRefuse.setToolTipText("sdfsdf");
 		btnRefuse.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnRefuse.setBounds(465, 513, 97, 43);
 		frmHome.getContentPane().add(btnRefuse);
 		
+		listFriendInfo = new List();
+		listFriendInfo.setFont(new Font("Calibri Light", Font.PLAIN, 14));
+		listFriendInfo.setBounds(180, 48, 206, 167);
+		frmHome.getContentPane().add(listFriendInfo);
+		
 		for(String connectedUser : connectedUsers)
 		{
 			listConnectedPeople.add(connectedUser);
 		}
+		
+		for(String friend : friends)
+		{
+			listFriends.add(friend);
+		}
+		
+		for(String pendingFriend : pendingFriends)
+		{
+			listRequestsFrom.add(pendingFriend);
+		}
+		
+		/*
+		 * ACTIONS
+		 */
+		
+		//Send friend request
+		btnRequestFriendship.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				// If name is selected
+				if(listConnectedPeople.getSelectedIndex() > -1)
+				{
+					// If not already in friends list
+					if(!Arrays.asList(listFriends.getItems()).contains(listConnectedPeople.getSelectedItem()))
+					{
+						String message = Utils.removeEscapedChars("FRIEND:REQ=" + username + "," + listConnectedPeople.getSelectedItem());
+						NetworkHandler.getNetworkHandler().sendMessage(message);
+					}
+				}
+			}
+		});
+		
+		// Accept friend request
+		btnAccept.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Check a request is selected
+				if(listRequestsFrom.getSelectedIndex() > -1)
+				{
+					String message = "FRIEND:ACCEPT=" + username + ","+ Utils.removeEscapedChars(listRequestsFrom.getSelectedItem());
+					NetworkHandler.getNetworkHandler().sendMessage(message);
+				}
+			}
+		});
+		
+		/*
+		 * Double click friend profile
+		 */
+		listFriends.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				NetworkHandler.getNetworkHandler().sendMessage("FRIEND:INFO=" + listFriends.getSelectedItem());
+			}
+		});
+		
+		// Decline friend request
+		btnRefuse.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				// Check a request is selected
+				if(listRequestsFrom.getSelectedIndex() > -1)
+				{
+					String message = "FRIEND:DECLINE=" + Utils.removeEscapedChars(listRequestsFrom.getSelectedItem()) + "," + username;
+					NetworkHandler.getNetworkHandler().sendMessage(message);
+					listRequestsFrom.remove(listRequestsFrom.getSelectedItem());
+				}
+			}
+		});
 	}
 
 	@Override
 	public void processMessage(String message)
 	{
 		message = message.substring(5);
-		
+		message = Utils.removeEscapedChars(message);
 		if(message.startsWith("CONNECTUSER="))
 		{
 			message = message.substring(12);
@@ -200,7 +288,38 @@ public class Home extends GuiScreen implements INetworkMessage
 			if(Arrays.asList(listConnectedPeople.getItems()).contains(message))
 			{
 				listConnectedPeople.remove(message);
-				
+			}
+		}
+		else if(message.startsWith("SENTREQ="))
+		{
+			message = message.substring(8);
+		}
+		else if(message.startsWith("RECIEVEDREQ="))
+		{
+			message = message.substring(12);
+			listRequestsFrom.add(message);
+		}
+		else if(message.startsWith("ADDFRIEND="))
+		{
+			message = message.substring(10);
+			if(Arrays.asList(listRequestsFrom.getItems()).contains(message))
+			{
+				listRequestsFrom.remove(message);
+			}
+			if(!Arrays.asList(listFriends).contains(message))
+			{
+				listFriends.add(message);
+			}
+		}
+		else if(message.startsWith("INFO="))
+		{
+			listFriendInfo.removeAll();
+			message = message.substring(5);
+			message = Utils.removeEscapedChars(message);
+			String[] messageArray = message.split(",");
+			for(String info : messageArray)
+			{
+				listFriendInfo.add(info);
 			}
 		}
 	}

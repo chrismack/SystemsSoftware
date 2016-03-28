@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import com.systems.client.main.Utils;
 import com.systems.client.network.INetworkMessage;
 import com.systems.client.network.NetworkHandler;
 
@@ -23,6 +24,8 @@ public class Login extends GuiScreen implements INetworkMessage
 	private JLabel lblError;
 	
 	private String[] connectedUsers = {};
+	private String[] friends = {};
+	private String[] pendingFriends = {};
 
 	/**
 	 * Launch the application.
@@ -122,25 +125,42 @@ public class Login extends GuiScreen implements INetworkMessage
 	}
 
 	@Override
-	public void processMessage(String message)
+	public void processMessage(String netMessage)
 	{
-		message = message.substring(6);
-		
-		if(message.startsWith("SUCCESS"))
+		String[] messageArray = netMessage.split("\n");
+		for(String message : messageArray)
 		{
-			Home home = new Home(txtUsername.getText(), connectedUsers);
-			home.init();
-			frmLogin.setVisible(false);
-			frmLogin.dispose();
-		}
-		else if (message.startsWith("FAIL"))
-		{
-			lblError.setText("Could not log in please try again");
-		}
-		else if (message.startsWith("CONNECTED="))
-		{
-			message = message.substring(10);
-			connectedUsers = message.split(",");
+			message = message.substring(6);
+			message = Utils.removeEscapedChars(message);
+			if (message.startsWith("FAIL"))
+			{
+				lblError.setText("Could not log in please try again");
+			}
+			else if (message.startsWith("CONNECTED="))
+			{
+				message = message.substring(10);
+				message = Utils.removeEscapedChars(message);
+				connectedUsers = message.split(",");
+			}
+			else if(message.startsWith("FRIENDS="))
+			{
+				message = message.substring(8);
+				message = Utils.removeEscapedChars(message);
+				friends = message.split(",");
+			}
+			else if(message.startsWith("PENDING="))
+			{
+				message = message.substring(8);
+				message = Utils.removeEscapedChars(message);
+				pendingFriends = message.split(",");
+			}
+			else if(message.startsWith("SUCCESS"))
+			{
+				Home home = new Home(txtUsername.getText(), connectedUsers, friends, pendingFriends);
+				home.init();
+				frmLogin.setVisible(false);
+				frmLogin.dispose();
+			}
 		}
 	}
 }
