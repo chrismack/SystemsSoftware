@@ -38,6 +38,7 @@ public class LoginProcessor implements INetworkMessage
 					if(messageArray[1].startsWith(userPassword.getString(1)))
 					{
 						NetworkHandler.getNetwork().sendMessage("LOGIN:SUCCESS", socket);
+						NetworkHandler.getNetwork().connectedUser.put(messageArray[0], socket);
 					}
 					else
 					{

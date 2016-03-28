@@ -20,7 +20,7 @@ public class NetworkHandler extends Thread
 	
 	private NetworkListener listener;
 	
-	private HashMap<String, Socket> connectedUser = new HashMap<String, Socket>();
+	public HashMap<String, Socket> connectedUser = new HashMap<String, Socket>();
 	
 	private SQLHandler sqlHandler;
 	/*
