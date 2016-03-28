@@ -10,7 +10,8 @@ public class Utils
 {
 	public static boolean userExists(String username)
 	{
-		ResultSet rs = SQLHandler.getInstance().eqecuteCommand("SELECT COUNT(username) FROM Users WHERE username = '" + username + "'");
+		String sql = "SELECT COUNT(username) FROM Users WHERE username = '" + username + "';";
+		ResultSet rs = SQLHandler.getInstance().eqecuteCommand(sql);
 		try
 		{
 			return Integer.parseInt(rs.getString(1)) > 0;
@@ -20,6 +21,7 @@ public class Utils
 		}
 		return false;
 	}
+	
 	
 	/*
 	 * FROM : http://www.java2s.com/Code/Java/Collections-Data-Structure/GetakeyfromvaluewithanHashMap.htm
@@ -34,6 +36,12 @@ public class Utils
 	    	}
 	    }
 	    return null;
+	}
+	
+	public static String removeEscapedChars(String str)
+	{
+		String noEsc = str.replaceAll("[\r\n\t\b\f\"\']", "");
+		return noEsc;
 	}
 	
 }

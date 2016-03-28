@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.systems.server.main.Utils;
+import com.systems.server.network.processors.FriendProcessor;
 import com.systems.server.network.processors.LoginProcessor;
 import com.systems.server.network.processors.RegistrationProcessor;
 import com.systems.server.sql.SQLHandler;
@@ -163,6 +164,9 @@ public class NetworkHandler extends Thread
 						case "LOGIN":
 							messageProcessor = new LoginProcessor(sqlHandler);
 							break;
+						case "FRIEND":
+							messageProcessor = new FriendProcessor(sqlHandler);
+							break;
 						default:
 							continue;
 						}
@@ -187,13 +191,16 @@ public class NetworkHandler extends Thread
 	            {
 	                socket.close();
 	                String username = (String) Utils.getKeyFromValue(connectedUser, socket);
-	                connectedUser.values().remove(socket);
-	                
-	                Iterator<Entry<String, Socket>> it = connectedUser.entrySet().iterator();
-	                while (it.hasNext())
+	                if(username != null)
 	                {
-	                	 Entry<String, Socket> pair = it.next();
-	                	 sendMessage("HOME:REMOVEUSER=" + username, pair.getValue());
+		                connectedUser.values().remove(socket);
+		                
+		                Iterator<Entry<String, Socket>> it = connectedUser.entrySet().iterator();
+		                while (it.hasNext())
+		                {
+		                	 Entry<String, Socket> pair = it.next();
+		                	 sendMessage("HOME:REMOVEUSER=" + username, pair.getValue());
+		                }
 	                }
 	            } 
 	            catch (IOException e) 
@@ -214,6 +221,7 @@ public class NetworkHandler extends Thread
 		{
 			e.printStackTrace();
 		}
+		writer.flush();
 		writer.println(message);
 	}
 }

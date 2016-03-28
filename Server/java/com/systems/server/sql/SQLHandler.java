@@ -3,6 +3,7 @@ package com.systems.server.sql;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 public class SQLHandler
@@ -68,6 +69,21 @@ public class SQLHandler
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public int getColsCount(ResultSet rs)
+	{
+		ResultSetMetaData rsmd;
+		int columnsNumber = 0;
+		try
+		{
+			rsmd = rs.getMetaData();
+			columnsNumber = rsmd.getColumnCount();
+		} catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		return columnsNumber;
 	}
 
 }
