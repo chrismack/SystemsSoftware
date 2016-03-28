@@ -30,6 +30,8 @@ public class Registration extends GuiScreen implements INetworkMessage
 	private JTextField textFieldDateOfBirth;
 	private JPasswordField passwordField;
 	private JPasswordField passwordFieldConfirm;
+	private JLabel lblError;
+	
 
 	/**
 	 * Launch the application.
@@ -168,6 +170,12 @@ public class Registration extends GuiScreen implements INetworkMessage
 		passwordFieldConfirm.setBounds(132, 196, 86, 20);
 		contentPane.add(passwordFieldConfirm);
 		
+		lblError = new JLabel("");
+		lblError.setFont(new Font("Calibri Light", Font.PLAIN, 14));
+		lblError.setForeground(Color.RED);
+		lblError.setBounds(321, 261, 235, 14);
+		contentPane.add(lblError);
+		
 		// =========================================== //
 		// 					Actions					   //
 		// =========================================== //
@@ -176,21 +184,28 @@ public class Registration extends GuiScreen implements INetworkMessage
 			public void actionPerformed(ActionEvent e) 
 			{
 				String username 	= textFieldUserName.getText();
-				String password 	= passwordField.getPassword().toString();
 				String dob 			= textFieldDateOfBirth.getText();
 				String placeOfBirth = textFieldPlaceOfBirth.getText();
+				
+				String passText = new String(passwordField.getPassword());
+				String passTextConf = new String(passwordFieldConfirm.getPassword());
 				
 				//if any of the fields are empty
 				if(listMusicPreferences.getItemCount()      < 1 || username.length()     < 1 ||
 				   placeOfBirth.length() < 1 || dob.length()  < 1)
 				{
 					// Add message saying invalid info has been entered
+					lblError.setText("Please enter value in all fields");
+				}
+				else if(!(passText.equals(passTextConf)))
+				{
+					lblError.setText("Passwords do not match");
 				}
 				else // Everything is valid send reg information
 				{
 					
 					System.out.println("sending reg message");
-					String passText = new String(passwordField.getPassword());
+					
 					NetworkHandler.getNetworkHandler().sendMessage("REG:" + username + "|" 
 																		  + passText + "|" 
 																		  + dob + "|" 
@@ -236,6 +251,7 @@ public class Registration extends GuiScreen implements INetworkMessage
 		{
 			// set a lable to say login failed
 			System.out.println("reg failed");
+			lblError.setText("Registration Failed");
 		}
 	}
 	

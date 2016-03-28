@@ -23,6 +23,7 @@ public class Login extends GuiScreen implements INetworkMessage
 	private JFrame frmLogin;
 	private JPasswordField passwordField;
 	private JTextField txtUsername;
+	private JLabel lblError;
 
 	/**
 	 * Launch the application.
@@ -89,6 +90,11 @@ public class Login extends GuiScreen implements INetworkMessage
 		btnLogin.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnLogin.setBounds(300, 65, 89, 23);
 		frmLogin.getContentPane().add(btnLogin);
+		
+		lblError = new JLabel("");
+		lblError.setForeground(Color.RED);
+		lblError.setBounds(281, 32, 186, 14);
+		frmLogin.getContentPane().add(lblError);
 		frmLogin.setBackground(Color.WHITE);
 		frmLogin.setBounds(100, 100, 500, 160);
 		frmLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -108,6 +114,7 @@ public class Login extends GuiScreen implements INetworkMessage
 				}
 				else
 				{
+					lblError.setText("Could not log in please try again");
 					// Add message saying invalid info entered
 				}
 			}
