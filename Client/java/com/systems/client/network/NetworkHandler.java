@@ -8,11 +8,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import com.systems.client.main.Main;
+import com.systems.client.gui.Login;
+import com.systems.client.gui.Registration;
 
 
 
-public class NetworkHandler implements Runnable
+public class NetworkHandler extends Thread
 {
 	/*
 	 * I am assuming this has to match up with the server hostname and port.
@@ -84,15 +85,68 @@ public class NetworkHandler implements Runnable
 	@Override
 	public void run()
 	{
-	while(Main.RUNNING)
+		while(true)
 		{
 			try
 			{
-				System.out.println(in.readLine());
-			} catch (IOException e)
+				int loopCount = 0;
+				int count;
+				String message = "";
+				String dataType = "";
+				byte[] bytes = new byte[8 * 1024];
+				
+				while ((count = socket.getInputStream().read(bytes)) > 0)
+				{
+					if(loopCount == 0)
+					{
+						for(int i = 0; i < bytes.length; i++)
+						{
+							if(bytes[i] == 58)
+							{
+								break;
+							}
+							dataType += (char)bytes[i];
+						}
+					}
+					
+					if(count >= 8 * 1024)
+					{
+						message += new String(bytes, 0, count);
+					}
+					else
+					{
+						message += new String(bytes, 0, count);
+						INetworkMessage networkMessage = null;
+						
+						switch (dataType)
+						{
+						case "REG":
+							networkMessage = (INetworkMessage) Registration.getInstance();
+							break;
+						case "LOGIN":
+							networkMessage = (INetworkMessage) Login.getInstance();
+							break;
+						default:
+							break;
+						}
+						
+						if(count < 8 * 1024)
+						{
+							System.out.println(message);
+							networkMessage.processMessage(message);
+							networkMessage = null;
+							message = "";
+						}
+					}
+					loopCount++;
+				}
+					
+			} 
+			catch (IOException e)
 			{
 				e.printStackTrace();
 			}
 		}
 	}
+
 }

@@ -1,29 +1,27 @@
 package com.systems.client.gui;
 
-import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Choice;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import com.systems.client.network.INetworkMessage;
 import com.systems.client.network.NetworkHandler;
 
-import javax.swing.JLabel;
-import java.awt.Color;
-import java.awt.Font;
-import javax.swing.JTextField;
-import java.awt.Choice;
-import java.awt.Button;
-import java.awt.List;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.util.Arrays;
-import java.awt.event.ActionEvent;
-import javax.swing.JPasswordField;
-
-public class Registration
+public class Registration extends GuiScreen implements INetworkMessage
 {
 	private JFrame frmReg;
 	private JPanel contentPane;
@@ -56,6 +54,7 @@ public class Registration
 
 	public Registration()
 	{
+		INSTANCE = this;
 		initialize();
 	}
 	
@@ -176,18 +175,26 @@ public class Registration
 		btnRegister.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{
+				String username 	= textFieldUserName.getText();
+				String password 	= passwordField.getPassword().toString();
+				String dob 			= textFieldDateOfBirth.getText();
+				String placeOfBirth = textFieldPlaceOfBirth.getText();
+				
 				//if any of the fields are empty
-				if(listMusicPreferences.getItemCount()      < 1 || textFieldUserName.getText().length()     < 1 ||
-				   textFieldPlaceOfBirth.getText().length() < 1 || textFieldDateOfBirth.getText().length()  < 1)
+				if(listMusicPreferences.getItemCount()      < 1 || username.length()     < 1 ||
+				   placeOfBirth.length() < 1 || dob.length()  < 1)
 				{
-					System.out.println("sending reg message");
-					NetworkHandler.getNetworkHandler().sendMessage("REG:HELLOTHERE");
+					// Add message saying invalid info has been entered
 				}
 				else // Everything is valid send reg information
 				{
 					
 					System.out.println("sending reg message");
-					NetworkHandler.getNetworkHandler().sendMessage("REG:HELLOTHERE");
+					String passText = new String(passwordField.getPassword());
+					NetworkHandler.getNetworkHandler().sendMessage("REG:" + username + "|" 
+																		  + passText + "|" 
+																		  + dob + "|" 
+																		  + placeOfBirth);
 				}
 			}
 		});
@@ -211,10 +218,32 @@ public class Registration
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{
-				Login login = new Login();
-				login.init();
-				frmReg.dispose();
+				showLogin();
 			}
 		});
+	}
+
+	@Override
+	public void processMessage(String message)
+	{
+		message = message.substring(4);
+		
+		if(message.startsWith("SUCCESS"))
+		{
+			showLogin();
+		}
+		else
+		{
+			// set a lable to say login failed
+			System.out.println("reg failed");
+		}
+	}
+	
+	private void showLogin()
+	{
+		Login login = new Login();
+		login.init();
+		frmReg.setVisible(false);
+		frmReg.dispose();
 	}
 }

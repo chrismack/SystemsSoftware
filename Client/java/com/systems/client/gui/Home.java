@@ -12,7 +12,9 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class Home
+import com.systems.client.network.INetworkMessage;
+
+public class Home extends GuiScreen implements INetworkMessage
 {
 	private static String username;
 	private JFrame frmHome;
@@ -22,7 +24,7 @@ public class Home
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args)
+	public void init()
 	{
 		username = "Test";
 		EventQueue.invokeLater(new Runnable()
@@ -47,6 +49,7 @@ public class Home
 	 */
 	public Home()
 	{
+		INSTANCE = this;
 		initialize();
 	}
 
@@ -172,5 +175,12 @@ public class Home
 		btnRefuse.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnRefuse.setBounds(465, 513, 97, 43);
 		frmHome.getContentPane().add(btnRefuse);
+	}
+
+	@Override
+	public void processMessage(String message)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
