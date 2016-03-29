@@ -95,6 +95,35 @@ public class LoginProcessor implements INetworkMessage
 								NetworkHandler.getNetwork().sendMessage("LOGIN:PENDING=" + pendingFriends, socket);
 							}
 							
+							//Send old posts
+							//============================================================================
+							
+							//Login
+//							
+							String posts = "";
+							String postsSQL = "SELECT up.username, up.post "
+											+ "FROM UserPost up "
+											+ "WHERE up.username IN "
+											+ "(SELECT uf.username "
+											+ "FROM UserFriends uf "
+											+ "WHERE uf.friendUsername = '" + messageArray[0] + "' "
+											+ "AND uf.pending = 'false' "
+											+ "UNION ALL "
+											+ "SELECT uf.friendUsername "
+											+ "FROM UserFriends uf "
+											+ "WHERE uf.username = '" + messageArray[0] + "' AND uf.pending = 'false') "
+											+ "OR up.username = '" + messageArray[0] + "' "
+											+ "ORDER BY up.time;";
+							ResultSet postsRs = sqlHandler.eqecuteCommand(postsSQL);
+							while(postsRs.next())
+							{
+								posts += postsRs.getString(1) + "|" + postsRs.getString(2) + ",";
+							}
+							if(posts.length() > 0)
+							{
+								posts = posts.substring(0, posts.length() - 1);
+								NetworkHandler.getNetwork().sendMessage("LOGIN:POSTS=" + posts, socket);
+							}
 							
 							//Send successful login message
 							//=============================================================
@@ -110,7 +139,9 @@ public class LoginProcessor implements INetworkMessage
 			                	 NetworkHandler.getNetwork().sendMessage("HOME:CONNECTUSER=" + messageArray[0], pair.getValue());
 			                }
 			                
+			                
 			                // Add client to connected users list
+			                //==================================================================================
 			                NetworkHandler.getNetwork().connectedUser.put(messageArray[0], socket);
 						}
 						else // Auth failed

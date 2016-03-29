@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.List;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,6 +22,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import java.awt.ScrollPane;
 
 public class Home extends GuiScreen implements INetworkMessage
 {
@@ -28,13 +32,14 @@ public class Home extends GuiScreen implements INetworkMessage
 	private String[] connectedUsers;
 	private String[] friends;
 	private String[] pendingFriends;
+	private String[] posts;
 	private JFrame frmHome;
 	private JTextField textFieldPost;
 	private List listConnectedPeople;
 	private List listRequestsFrom;
 	private List listFriends;
 	private List listFriendInfo;
-
+	private JTextArea textArea_FriendsPosts;
 	/**
 	 * Launch the application.
 	 */
@@ -59,13 +64,14 @@ public class Home extends GuiScreen implements INetworkMessage
 	/**
 	 * Create the application.
 	 */
-	public Home(String username, String[] connectedUsers, String[] friends, String[] pendingFriends)
+	public Home(String username, String[] connectedUsers, String[] friends, String[] pendingFriends, String[] posts)
 	{
 		INSTANCE = this;
 		this.username = username;
 		this.connectedUsers = connectedUsers;
 		this.friends = friends;
 		this.pendingFriends = pendingFriends;
+		this.posts = posts;
 		initialize();
 	}
 
@@ -115,12 +121,13 @@ public class Home extends GuiScreen implements INetworkMessage
 		lblFriendsPosts.setBounds(32, 239, 84, 14);
 		frmHome.getContentPane().add(lblFriendsPosts);
 		
-		JTextArea textArea_FriendsPosts = new JTextArea();
+		textArea_FriendsPosts = new JTextArea();
 		textArea_FriendsPosts.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		textArea_FriendsPosts.setEditable(false);
 		textArea_FriendsPosts.setBorder(BorderFactory.createLineBorder(Color.gray));
-		textArea_FriendsPosts.setBounds(32, 264, 564, 111);
+		textArea_FriendsPosts.setBounds(32, 264, 2, 111);
 		frmHome.getContentPane().add(textArea_FriendsPosts);
+				
 		
 		JButton btnPlay = new JButton("Play");
 		btnPlay.setFont(new Font("Calibri Light", Font.PLAIN, 14));
@@ -194,6 +201,12 @@ public class Home extends GuiScreen implements INetworkMessage
 		listFriendInfo.setBounds(180, 48, 206, 167);
 		frmHome.getContentPane().add(listFriendInfo);
 		
+		JScrollPane scrollPane = new JScrollPane(textArea_FriendsPosts);
+		scrollPane.setBounds(32, 264, 560, 111);
+		frmHome.getContentPane().add(scrollPane);
+		
+		
+		
 		for(String connectedUser : connectedUsers)
 		{
 			listConnectedPeople.add(connectedUser);
@@ -207,6 +220,12 @@ public class Home extends GuiScreen implements INetworkMessage
 		for(String pendingFriend : pendingFriends)
 		{
 			listRequestsFrom.add(pendingFriend);
+		}
+		
+		for(String post : posts)
+		{
+			
+			textArea_FriendsPosts.setText(textArea_FriendsPosts.getText() + post + "\n");
 		}
 		
 		/*
@@ -270,6 +289,26 @@ public class Home extends GuiScreen implements INetworkMessage
 				}
 			}
 		});
+		
+		//Post
+		btnPost.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				long time = System.currentTimeMillis();
+				String post = textFieldPost.getText();
+				
+				post = post.replaceAll("\\n", "");
+				if(!post.isEmpty())
+				{
+					NetworkHandler.getNetworkHandler().sendMessage("POST:SUBMIT=" + username + "," + time + "," + post);
+					textArea_FriendsPosts.setText(textArea_FriendsPosts.getText()
+							+ username + " : " + post + "\n");
+					
+				}
+				textFieldPost.setText("");
+			}
+		});
 	}
 
 	@Override
@@ -321,6 +360,15 @@ public class Home extends GuiScreen implements INetworkMessage
 			{
 				listFriendInfo.add(info);
 			}
+		}
+		else if(message.startsWith("POST="))
+		{
+			message = message.substring(5);
+			message = Utils.removeEscapedChars(message);
+			String[] messageArray = message.split(",");
+			
+			textArea_FriendsPosts.setText(textArea_FriendsPosts.getText()
+										 + messageArray[0] + " : " + messageArray[2].replaceAll("\\n", "") + "\n");
 		}
 	}
 }

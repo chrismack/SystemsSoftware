@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import com.systems.server.main.Utils;
 import com.systems.server.network.processors.FriendProcessor;
 import com.systems.server.network.processors.LoginProcessor;
+import com.systems.server.network.processors.PostProcessor;
 import com.systems.server.network.processors.RegistrationProcessor;
 import com.systems.server.sql.SQLHandler;
 
@@ -166,6 +167,9 @@ public class NetworkHandler extends Thread
 							break;
 						case "FRIEND":
 							messageProcessor = new FriendProcessor(sqlHandler);
+							break;
+						case "POST":
+							messageProcessor = new PostProcessor(sqlHandler);
 							break;
 						default:
 							continue;
