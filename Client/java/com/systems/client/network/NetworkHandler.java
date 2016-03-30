@@ -23,7 +23,7 @@ public class NetworkHandler extends Thread
 	private static String HOSTNAME = "127.0.0.1";
 	private static int PORT = 4556;
 	
-	private Socket socket;;
+	private Socket socket;
 	private BufferedReader in;	
 	private PrintWriter out; 
 	private DataInputStream din;
@@ -72,6 +72,11 @@ public class NetworkHandler extends Thread
 	public int getPort()
 	{
 		return PORT;
+	}
+	
+	public Socket getServerSocket()
+	{
+		return this.socket;
 	}
 	
 	public void sendMessage(String message)

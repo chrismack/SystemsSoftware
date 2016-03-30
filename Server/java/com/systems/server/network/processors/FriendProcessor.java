@@ -142,4 +142,5 @@ public class FriendProcessor implements INetworkMessage
 		}
 		return false;
 	}
+
 }

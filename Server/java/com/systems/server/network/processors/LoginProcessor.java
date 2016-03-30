@@ -125,6 +125,32 @@ public class LoginProcessor implements INetworkMessage
 								NetworkHandler.getNetwork().sendMessage("LOGIN:POSTS=" + posts, socket);
 							}
 							
+							//Send friends shared songs
+							//=======================================================================
+							String friendsSongsSQL = "SELECT s.songTitle "
+												   + "FROM Songs s "
+												   + "WHERE s.username IN "
+												   + "(SELECT uf.username "
+												   + "FROM UserFriends uf "
+												   + "WHERE uf.friendUsername = '" + messageArray[0] + "' "
+												   + "AND uf.pending = 'false' "
+												   + "UNION ALL "
+												   + "SELECT uf.friendUsername "
+												   + "FROM UserFriends uf "
+												   + "WHERE uf.username = '" + messageArray[0] + "' AND uf.pending = 'false') "
+												   + "OR s.username = '" + messageArray[0] + "';";
+							ResultSet friendsSongsRS = sqlHandler.eqecuteCommand(friendsSongsSQL);
+							String friendsSongs = "";
+							while(friendsSongsRS.next())
+							{
+								friendsSongs += friendsSongsRS.getString(1) + ",";
+							}
+							if(friendsSongs.length() > 0)
+							{
+								friendsSongs = friendsSongs.substring(0, friendsSongs.length() - 1);
+								NetworkHandler.getNetwork().sendMessage("LOGIN:SONGS=" + friendsSongs, socket);
+							}
+							
 							//Send successful login message
 							//=============================================================
 							NetworkHandler.getNetwork().sendMessage("LOGIN:SUCCESS", socket);

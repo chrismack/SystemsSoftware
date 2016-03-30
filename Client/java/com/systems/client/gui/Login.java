@@ -27,6 +27,7 @@ public class Login extends GuiScreen implements INetworkMessage
 	private String[] friends = {};
 	private String[] pendingFriends = {};
 	private String[] posts = {};
+	private String[] songs = {};
 
 	/**
 	 * Launch the application.
@@ -162,9 +163,15 @@ public class Login extends GuiScreen implements INetworkMessage
 				message = message.replaceAll("[|]", " : ");
 				posts = message.split(",");
 			}
+			else if(message.startsWith("SONGS="))
+			{
+				message = message.substring(6);
+				message = Utils.removeEscapedChars(message);
+				songs = message.split(",");
+			}
 			else if(message.startsWith("SUCCESS"))
 			{
-				Home home = new Home(txtUsername.getText(), connectedUsers, friends, pendingFriends, posts);
+				Home home = new Home(txtUsername.getText(), connectedUsers, friends, pendingFriends, posts, songs);
 				home.init();
 				frmLogin.setVisible(false);
 				frmLogin.dispose();

@@ -4,13 +4,23 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
 import java.util.Arrays;
-import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -18,13 +28,10 @@ import com.systems.client.main.Utils;
 import com.systems.client.network.INetworkMessage;
 import com.systems.client.network.NetworkHandler;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import java.awt.ScrollPane;
+import javazoom.jl.player.Player;
+import javazoom.jl.player.advanced.AdvancedPlayer;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 public class Home extends GuiScreen implements INetworkMessage
 {
@@ -33,6 +40,8 @@ public class Home extends GuiScreen implements INetworkMessage
 	private String[] friends;
 	private String[] pendingFriends;
 	private String[] posts;
+	private String[] songs;
+	
 	private JFrame frmHome;
 	private JTextField textFieldPost;
 	private List listConnectedPeople;
@@ -40,6 +49,9 @@ public class Home extends GuiScreen implements INetworkMessage
 	private List listFriends;
 	private List listFriendInfo;
 	private JTextArea textArea_FriendsPosts;
+	private List listShareSongs;
+	
+	private SongPlayer songPlayer;
 	/**
 	 * Launch the application.
 	 */
@@ -64,7 +76,7 @@ public class Home extends GuiScreen implements INetworkMessage
 	/**
 	 * Create the application.
 	 */
-	public Home(String username, String[] connectedUsers, String[] friends, String[] pendingFriends, String[] posts)
+	public Home(String username, String[] connectedUsers, String[] friends, String[] pendingFriends, String[] posts, String[] songs)
 	{
 		INSTANCE = this;
 		this.username = username;
@@ -72,6 +84,7 @@ public class Home extends GuiScreen implements INetworkMessage
 		this.friends = friends;
 		this.pendingFriends = pendingFriends;
 		this.posts = posts;
+		this.songs = songs;
 		initialize();
 	}
 
@@ -111,7 +124,8 @@ public class Home extends GuiScreen implements INetworkMessage
 		listFriends.setBounds(32, 48, 122, 167);
 		frmHome.getContentPane().add(listFriends);
 		
-		List listShareSongs = new List();
+		listShareSongs = new List();
+		
 		listShareSongs.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		listShareSongs.setBounds(410, 48, 186, 167);
 		frmHome.getContentPane().add(listShareSongs);
@@ -129,9 +143,50 @@ public class Home extends GuiScreen implements INetworkMessage
 		frmHome.getContentPane().add(textArea_FriendsPosts);
 				
 		
-		JButton btnPlay = new JButton("Play");
+		JButton btnPlay = new JButton(">");
+		btnPlay.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				File file = null;
+				JFileChooser fileChooser = new JFileChooser();
+				int returnValue = fileChooser.showOpenDialog(null);
+				if (returnValue == JFileChooser.APPROVE_OPTION)
+				{
+					file = fileChooser.getSelectedFile();
+				};
+				
+				if(file != null && file.getName().endsWith(".mp3"))
+				{
+					
+			        // Get the size of the file
+			        long length = (file.length());
+			        //Send inital header information
+			        NetworkHandler.getNetworkHandler().sendMessage("SONG:UPLOAD=" + username + "," + file.getName() + "," + length);
+			        
+			        try
+			        {
+			        	int count;
+			        	byte[] bytes = new byte[(int) length];
+			        	InputStream in = new FileInputStream(file);
+			        
+			        	// Send the file to the server
+			        	while ((count = in.read(bytes)) > 0)
+			        	{
+			        		NetworkHandler.getNetworkHandler().sendBytes(bytes);
+			        	}
+			        	in.close();
+			        }
+			        catch (Exception ee)
+			        {
+			        	ee.printStackTrace();
+			        }
+			        listShareSongs.add(file.getName());
+				}
+			}
+		});
 		btnPlay.setFont(new Font("Calibri Light", Font.PLAIN, 14));
-		btnPlay.setBounds(465, 235, 89, 23);
+		btnPlay.setBounds(410, 221, 55, 23);
 		frmHome.getContentPane().add(btnPlay);
 		
 		JLabel lblPost = new JLabel("Post:");
@@ -228,6 +283,11 @@ public class Home extends GuiScreen implements INetworkMessage
 			textArea_FriendsPosts.setText(textArea_FriendsPosts.getText() + post + "\n");
 		}
 		
+		for(String song : songs)
+		{
+			listShareSongs.add(song);
+		}
+		
 		/*
 		 * ACTIONS
 		 */
@@ -295,6 +355,8 @@ public class Home extends GuiScreen implements INetworkMessage
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
+				
+				
 				long time = System.currentTimeMillis();
 				String post = textFieldPost.getText();
 				
@@ -307,6 +369,23 @@ public class Home extends GuiScreen implements INetworkMessage
 					
 				}
 				textFieldPost.setText("");
+			}
+		});
+		
+		// Song selected
+		listShareSongs.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				File fileCheck = new File(listShareSongs.getSelectedItem());
+				if(!fileCheck.exists())
+				{
+					NetworkHandler.getNetworkHandler().sendMessage("SONG:LISTEN=" + listShareSongs.getSelectedItem().toString());
+				}
+				else
+				{
+					startSong(listShareSongs.getSelectedItem());
+				}
 			}
 		});
 	}
@@ -370,5 +449,91 @@ public class Home extends GuiScreen implements INetworkMessage
 			textArea_FriendsPosts.setText(textArea_FriendsPosts.getText()
 										 + messageArray[0] + " : " + messageArray[2].replaceAll("\\n", "") + "\n");
 		}
+		else if(message.startsWith("PLAY="))
+		{
+			message = message.substring(5);
+			message = Utils.removeEscapedChars(message);
+			String[] messageArray = message.split(",");
+			writeFile(messageArray[0], Long.parseLong(messageArray[1]), NetworkHandler.getNetworkHandler().getServerSocket());
+			startSong(messageArray[0]);
+		}
 	}
+	
+	private void writeFile(String fileName, long fileSize, Socket socket)
+	{
+		int count = 0;
+		int countedBytes = 0;
+		byte[] bytes = new byte[8 * 1024];
+		FileOutputStream inF;
+		try
+		{
+			inF = new FileOutputStream(new File(fileName));
+		
+			while ((count = socket.getInputStream().read(bytes)) > 0)
+			{
+				countedBytes += count;	// The number of bytes that have been sent over the socket
+				inF.write(bytes);		// Write the bytes into the file
+				
+				// If all the expected bytes have been sent
+				if(countedBytes >= fileSize)
+				{
+					inF.flush();
+					inF.close();
+					break;				// Stop listening to the socket as the file has been sent
+				}						// Listening will resume in the network listener
+			}
+			
+			
+		} catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void startSong(String file)
+	{
+		if(this.songPlayer != null)
+		{
+			songPlayer.end();
+		}
+		songPlayer = new SongPlayer(file);
+		songPlayer.start();
+	}
+
+	private class SongPlayer extends Thread
+	{
+		private String fileName;
+		private AdvancedPlayer player;
+		
+		public SongPlayer(String fileName)
+		{
+			this.fileName = fileName;
+		}
+		
+		public void end()
+		{
+			this.player.close();
+		}
+		
+		
+		@Override
+		public void run()
+		{
+			try
+			{
+				File file = new File(fileName);
+				FileInputStream fis = new FileInputStream(file);
+				player = new AdvancedPlayer(fis);
+				player.play();
+			}
+			catch(Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+	}
+	
 }

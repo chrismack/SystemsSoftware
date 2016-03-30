@@ -2,21 +2,27 @@ package com.systems.server.network;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.imageio.ImageIO;
 
 import com.systems.server.main.Utils;
 import com.systems.server.network.processors.FriendProcessor;
 import com.systems.server.network.processors.LoginProcessor;
 import com.systems.server.network.processors.PostProcessor;
 import com.systems.server.network.processors.RegistrationProcessor;
+import com.systems.server.network.processors.SongProcessor;
 import com.systems.server.sql.SQLHandler;
 
 public class NetworkHandler extends Thread
@@ -128,6 +134,7 @@ public class NetworkHandler extends Thread
 				out = new PrintWriter(socket.getOutputStream(), true);
 				
 				byte[] bytes = new byte[8 * 1024];
+				byte[] fileBytes = {};
 				String dataType = "";
 
 				int loopCount = 0;
@@ -171,7 +178,14 @@ public class NetworkHandler extends Thread
 						case "POST":
 							messageProcessor = new PostProcessor(sqlHandler);
 							break;
+						case "SONG":
+							messageProcessor = new SongProcessor(sqlHandler);
+							break;
+						
 						default:
+							message = "";
+							dataType = "";
+							loopCount = -1;
 							continue;
 						}
 						
@@ -193,6 +207,7 @@ public class NetworkHandler extends Thread
             {
 	            try 
 	            {
+	            	sendMessage("DISCONECT", socket);
 	                socket.close();
 	                String username = (String) Utils.getKeyFromValue(connectedUser, socket);
 	                if(username != null)
