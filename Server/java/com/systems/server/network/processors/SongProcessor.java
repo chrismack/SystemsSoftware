@@ -7,6 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.systems.server.main.Utils;
 import com.systems.server.network.INetworkMessage;
@@ -40,47 +45,84 @@ public class SongProcessor implements INetworkMessage
 			String sql = "INSERT INTO Songs(username, songTitle) VALUES('" + username + "','" + fileName + "');";
 			sqlHandler.insertValues(sql);
 			
-			writeFile(fileName, fileSize, socket);
+			writeFile("songs/" + fileName, fileSize, socket);
+			
+			//Send the new upload to friends
+			String friendsSQL = "SELECT uf.username "
+							  + "FROM UserFriends uf "
+							  + "WHERE uf.friendUsername = '" + username + "' "
+							  + "AND uf.pending = 'false' "
+							  + "UNION ALL "
+							  + "SELECT uf.friendUsername "
+							  + "FROM UserFriends uf "
+							  + "WHERE uf.username = '" + username + "' AND uf.pending = 'false'";
+			
+			ResultSet allFriends = sqlHandler.eqecuteCommand(friendsSQL);
+			
+			ArrayList<String> friends = new ArrayList<String>();
+			try
+			{
+				while (allFriends.next())
+				{
+					friends.add(allFriends.getString(1));
+				}
+			} catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+			
+			for(Entry<String, Socket> allConnectedUsers : NetworkHandler.getNetwork().connectedUser.entrySet())
+			{
+				if(friends.contains(allConnectedUsers.getKey()))
+				{
+					NetworkHandler.getNetwork().sendMessage("HOME:NEWSONG=" + fileName, allConnectedUsers.getValue());
+				}
+			}
 		}
 		else if(message.startsWith("LISTEN="))
 		{
 			message = message.substring(7);
 			
 			// Check we have the file on record
-			String songExistsSQL = "SELECT songTitle FROM Songs WHERE songTitle = '" + message + "';";
-			boolean songExists = sqlHandler.getColsCount(sqlHandler.eqecuteCommand(songExistsSQL)) > 0 ? true : false;
-			if(songExists)
+			sendSong(message, socket);
+		}
+	}
+
+	private void sendSong(String song, Socket socket)
+	{
+		String songExistsSQL = "SELECT songTitle FROM Songs WHERE songTitle = '" + song + "';";
+		boolean songExists = sqlHandler.getColsCount(sqlHandler.eqecuteCommand(songExistsSQL)) > 0 ? true : false;
+		if(songExists)
+		{
+			File file = new File("songs/" + song);
+			if(file.exists())			// We have the file
 			{
-				File file = new File(message);
-				if(file.exists())			// We have the file
+				long fileLength = file.length();
+				// Send header information
+				NetworkHandler.getNetwork().sendMessage("HOME:PLAY=" + file.getName() + "," + String.valueOf(fileLength), socket);
+				
+				try
 				{
-					long fileLength = file.length();
-					// Send header information
-					NetworkHandler.getNetwork().sendMessage("HOME:PLAY=" + file.getName() + "," + String.valueOf(fileLength), socket);
+					int count;
+					byte[] bytes = new byte[(int) fileLength];
+					InputStream in = new FileInputStream(file);
 					
-					try
+					// Send the file to the server
+					while ((count = in.read(bytes)) > 0)
 					{
-						int count;
-						byte[] bytes = new byte[(int) fileLength];
-						InputStream in = new FileInputStream(file);
-						
-						// Send the file to the server
-						while ((count = in.read(bytes)) > 0)
-						{
-							// Send the file
-							NetworkHandler.getNetwork().sendBytes(bytes, socket);
-						}
-						in.close();
+						// Send the file
+						NetworkHandler.getNetwork().sendBytes(bytes, socket);
 					}
-					catch (Exception ee)
-					{
-						ee.printStackTrace();
-					}
+					in.close();
+				}
+				catch (Exception ee)
+				{
+					ee.printStackTrace();
 				}
 			}
 		}
 	}
-
+	
 	private void writeFile(String fileName, long fileSize, Socket socket)
 	{
 		int count = 0;

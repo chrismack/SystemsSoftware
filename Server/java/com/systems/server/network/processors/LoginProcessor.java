@@ -168,7 +168,10 @@ public class LoginProcessor implements INetworkMessage
 			                
 			                // Add client to connected users list
 			                //==================================================================================
-			                NetworkHandler.getNetwork().connectedUser.put(messageArray[0], socket);
+			                synchronized (NetworkHandler.getNetwork().connectedUser)
+							{
+			                	NetworkHandler.getNetwork().connectedUser.put(messageArray[0], socket);
+							}
 						}
 						else // Auth failed
 						{

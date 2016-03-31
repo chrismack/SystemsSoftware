@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 
 import com.systems.server.main.Utils;
 import com.systems.server.network.processors.FriendProcessor;
+import com.systems.server.network.processors.ImageProcessor;
 import com.systems.server.network.processors.LoginProcessor;
 import com.systems.server.network.processors.PostProcessor;
 import com.systems.server.network.processors.RegistrationProcessor;
@@ -114,9 +115,6 @@ public class NetworkHandler extends Thread
 	private class NetworkListener extends Thread
 	{
 		private Socket socket;
-		private BufferedReader in;
-		private PrintWriter out;
-		private DataInputStream din;
 		
 		public NetworkListener(Socket socket)
 		{
@@ -130,11 +128,7 @@ public class NetworkHandler extends Thread
 			{
 				System.out.println("Listener thread");
 				
-				in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				out = new PrintWriter(socket.getOutputStream(), true);
-				
 				byte[] bytes = new byte[8 * 1024];
-				byte[] fileBytes = {};
 				String dataType = "";
 
 				int loopCount = 0;
@@ -181,11 +175,20 @@ public class NetworkHandler extends Thread
 						case "SONG":
 							messageProcessor = new SongProcessor(sqlHandler);
 							break;
+						case "PIC":
+							messageProcessor = new ImageProcessor(sqlHandler);
+							break;
+						case "LOGOFF":
+							disconnectUser(socket);
+							message = "";
+							dataType = "";
+							loopCount = 0;
+							continue;
 						
 						default:
 							message = "";
 							dataType = "";
-							loopCount = -1;
+							loopCount = 0;
 							continue;
 						}
 						
@@ -205,30 +208,38 @@ public class NetworkHandler extends Thread
             } 
 			finally
             {
-	            try 
-	            {
-	            	sendMessage("DISCONECT", socket);
-	                socket.close();
-	                String username = (String) Utils.getKeyFromValue(connectedUser, socket);
-	                if(username != null)
-	                {
-		                connectedUser.values().remove(socket);
-		                
-		                Iterator<Entry<String, Socket>> it = connectedUser.entrySet().iterator();
-		                while (it.hasNext())
-		                {
-		                	 Entry<String, Socket> pair = it.next();
-		                	 sendMessage("HOME:REMOVEUSER=" + username, pair.getValue());
-		                }
-	                }
-	            } 
-	            catch (IOException e) 
-	            {
-	            }
+				 try 
+		         {
+		         	sendMessage("DISCONECT", socket);
+		         	socket.close();
+		         	disconnectUser(socket);
+		         } 
+		         catch (IOException e) 
+		         {
+		         }
             }
 		}
 	}
-
+	
+	private void disconnectUser(Socket socket)
+	{
+		 String username = (String) Utils.getKeyFromValue(connectedUser, socket);
+         if(username != null)
+         {
+         	synchronized (connectedUser)
+				{
+         			connectedUser.values().remove(socket);
+				}
+                
+                Iterator<Entry<String, Socket>> it = connectedUser.entrySet().iterator();
+                while (it.hasNext())
+                {
+                	 Entry<String, Socket> pair = it.next();
+                	 sendMessage("HOME:REMOVEUSER=" + username, pair.getValue());
+                }
+         }
+	}
+	
 	public void sendMessage(String message, Socket socket)
 	{
 		PrintWriter writer = null;
