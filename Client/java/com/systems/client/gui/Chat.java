@@ -30,6 +30,8 @@ public class Chat
 	private String un;   // This is our name
 	private String username;
 	private ChatDispatcher dispatcher;
+	
+	private boolean stillConnected = true;
 
 	/**
 	 * Launch the application.
@@ -130,7 +132,10 @@ public class Chat
 		    @Override
 		    public void windowClosing(WindowEvent windowEvent) 
 		    {
-		    	dispatcher.writeMessage(username + ":" + "I HAVE CLOSED THE CHAT");
+		    	if(stillConnected == true)
+		    	{
+		    		dispatcher.writeMessage(username + ":" + "I HAVE CLOSED THE CHAT");
+		    	}
 		    	dispatcher.closeChat(username);
 		    }
 		});
@@ -144,6 +149,10 @@ public class Chat
 	
 	public void newMessage(String message)
 	{
+		if(message.contains("I HAVE CLOSED THE CHAT"))
+		{
+			stillConnected = false;
+		}
 		textArea.setText(textArea.getText() + message + "\n");
 	}
 }

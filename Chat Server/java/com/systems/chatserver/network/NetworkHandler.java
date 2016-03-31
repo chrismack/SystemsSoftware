@@ -123,10 +123,15 @@ public class NetworkHandler extends Thread
 							if(!connectedUsers.containsKey(message))
 							{
 								connectedUsers.put(usernameFrom, socket);
-								synchronized (Gui.INSTANCE)
+								try
 								{
-									Gui.getGui().addUser(usernameFrom);
+									synchronized (Gui.INSTANCE.lstConnectedUsers)
+									{
+										Gui.getGui().addUser(usernameFrom);
+									}
 								}
+								catch(NullPointerException e)
+								{}
 							}
 						}
 					}
@@ -153,9 +158,15 @@ public class NetworkHandler extends Thread
 					{
 	         			connectedUsers.values().remove(socket);
 					}
-					synchronized (Gui.INSTANCE)
+					try
 					{
-						Gui.INSTANCE.removeUser(getKeyFromValue(connectedUsers, socket));
+						synchronized (Gui.INSTANCE.lstConnectedUsers)
+						{
+							Gui.INSTANCE.removeUser(getKeyFromValue(connectedUsers, socket));
+						}
+					}
+					catch(NullPointerException e)
+					{
 					}
 					socket.close();
 				} 

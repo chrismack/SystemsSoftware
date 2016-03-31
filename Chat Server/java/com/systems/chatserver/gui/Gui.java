@@ -21,7 +21,7 @@ public class Gui
 	private JFrame frmGui;
 	private JPanel contentPane;
 	
-	private List lstConnectedUsers;
+	public List lstConnectedUsers;
 	private JButton btnOff;
 
 	/**
