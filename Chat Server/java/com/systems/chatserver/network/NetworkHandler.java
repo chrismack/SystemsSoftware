@@ -5,6 +5,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.systems.chatserver.gui.Gui;
 
 public class NetworkHandler extends Thread
 {
@@ -120,6 +123,10 @@ public class NetworkHandler extends Thread
 							if(!connectedUsers.containsKey(message))
 							{
 								connectedUsers.put(usernameFrom, socket);
+								synchronized (Gui.INSTANCE)
+								{
+									Gui.getGui().addUser(usernameFrom);
+								}
 							}
 						}
 					}
@@ -146,6 +153,10 @@ public class NetworkHandler extends Thread
 					{
 	         			connectedUsers.values().remove(socket);
 					}
+					synchronized (Gui.INSTANCE)
+					{
+						Gui.INSTANCE.removeUser(getKeyFromValue(connectedUsers, socket));
+					}
 					socket.close();
 				} 
 				catch (IOException e)
@@ -154,6 +165,15 @@ public class NetworkHandler extends Thread
 			}
 		}
 	}
+	
+	private String getKeyFromValue(HashMap<String, Socket> hm, Object value) {
+	    for (String o : hm.keySet()) {
+	      if (hm.get(o).equals(value)) {
+	        return o;
+	      }
+	    }
+	    return null;
+	  }
 		
 	
 	public String removeEscapedChars(String str)

@@ -12,4 +12,8 @@ public class GuiScreen
 		}
 		return INSTANCE;
 	}
+	
+	public void close()
+	{
+	}
 }

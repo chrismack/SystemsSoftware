@@ -692,4 +692,11 @@ public class Home extends GuiScreen implements INetworkMessage
 			}
 		}
 	}
+	
+	@Override
+	public void close()
+	{
+		frmHome.setVisible(false);
+		frmHome.dispose();
+	}
 }

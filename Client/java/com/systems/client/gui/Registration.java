@@ -342,4 +342,11 @@ public class Registration extends GuiScreen implements INetworkMessage
 		frmReg.setVisible(false);
 		frmReg.dispose();
 	}
+	
+	@Override
+	public void close()
+	{
+		frmReg.setVisible(false);
+		frmReg.dispose();
+	}
 }

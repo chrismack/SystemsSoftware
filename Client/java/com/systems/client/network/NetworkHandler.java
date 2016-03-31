@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import com.systems.client.gui.GuiScreen;
 import com.systems.client.gui.Home;
 import com.systems.client.gui.Login;
 import com.systems.client.gui.Registration;
@@ -131,8 +132,18 @@ public class NetworkHandler extends Thread
 						case "HOME":
 							networkMessage = (INetworkMessage) Home.getInstance();
 							break;
+						case "DISCONNECT":
+							if(GuiScreen.INSTANCE != null)
+							{
+								GuiScreen.INSTANCE.close();
+							}
+							System.exit(1);
+							continue;
 						default:
-							break;
+							message = "";
+							dataType = "";
+							loopCount = -1;
+							continue;
 						}
 						
 						if(count < 8 * 1024)

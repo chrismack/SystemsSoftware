@@ -26,9 +26,10 @@ public class RegistrationProcessor implements INetworkMessage
 		
 		if(!Utils.userExists(messageArray[0]))
 		{
-			String sql = "INSERT INTO Users (username, password, dateOfBirth, placeOfBirth, profilePic) VALUES('" 
+			String sql = "INSERT INTO Users (username, password, dateOfBirth, placeOfBirth, profilePic, ip) VALUES('" 
 					+ messageArray[0] + "','" + messageArray[1] + "','" 
-					+ messageArray[2] + "','" + messageArray[3] + "','false');";
+					+ messageArray[2] + "','" + messageArray[3] + "','false','"
+					+ socket.getInetAddress().getHostAddress() + "');";
 			sqlHandler.insertValues(sql);
 			
 			// length - 1 to negate the extra comma that is sent at the end

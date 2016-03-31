@@ -3,6 +3,7 @@ package com.systems.client.gui;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.dnd.DragSourceMotionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -177,5 +178,12 @@ public class Login extends GuiScreen implements INetworkMessage
 				frmLogin.dispose();
 			}
 		}
+	}
+	
+	@Override
+	public void close()
+	{
+		frmLogin.setVisible(false);
+		frmLogin.dispose();
 	}
 }
