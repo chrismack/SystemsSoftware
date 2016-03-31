@@ -8,9 +8,14 @@ import java.awt.Font;
 import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -31,6 +36,12 @@ public class Registration extends GuiScreen implements INetworkMessage
 	private JPasswordField passwordField;
 	private JPasswordField passwordFieldConfirm;
 	private JLabel lblError;
+	private JLabel lblProfilePic;
+	private ImageIcon image;
+	private String imageLoc;
+	private long imageSize;
+	private File profilePic;
+	private String gUsername;
 	
 
 	/**
@@ -173,14 +184,25 @@ public class Registration extends GuiScreen implements INetworkMessage
 		lblError = new JLabel("");
 		lblError.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		lblError.setForeground(Color.RED);
-		lblError.setBounds(321, 261, 235, 14);
+		lblError.setBounds(29, 11, 250, 14);
 		contentPane.add(lblError);
+		
+		JButton btnAddProfilePic = new JButton("Add Profile Pic");
+		
+		btnAddProfilePic.setBounds(321, 257, 137, 23);
+		contentPane.add(btnAddProfilePic);
+		
+		image = new ImageIcon("default.png");
+		lblProfilePic = new JLabel("", image, JLabel.CENTER);
+		lblProfilePic.setBounds(470, 207, 80, 80);
+		contentPane.add(lblProfilePic);
 		
 		// =========================================== //
 		// 					Actions					   //
 		// =========================================== //
 		
-		btnRegister.addActionListener(new ActionListener() {
+		btnRegister.addActionListener(new ActionListener() 
+		{
 			public void actionPerformed(ActionEvent e) 
 			{
 				String username 	= textFieldUserName.getText();
@@ -218,10 +240,13 @@ public class Registration extends GuiScreen implements INetworkMessage
 																		  + dob + "|" 
 																		  + placeOfBirth + "|"
 																		  + likedMusic);
+				
+					gUsername = username;
 				}
 			}
 		});
-		
+					
+					
 		/*
 		 * Add item to music list 
 		 */
@@ -244,7 +269,31 @@ public class Registration extends GuiScreen implements INetworkMessage
 				showLogin();
 			}
 		});
+		
+		btnAddProfilePic.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				JFileChooser fileChooser = new JFileChooser();
+				int returnValue = fileChooser.showOpenDialog(null);
+				if (returnValue == JFileChooser.APPROVE_OPTION)
+				{
+					profilePic = fileChooser.getSelectedFile();
+				};
+				
+				if(profilePic != null && profilePic.getName().endsWith(".png"))
+				{
+					image.getImage().flush();
+					image = new ImageIcon(profilePic.getAbsolutePath());
+					lblProfilePic.setIcon(image);
+					imageLoc = profilePic.getAbsolutePath();
+					imageSize = profilePic.length();
+				}
+			}
+		});
+		
 	}
+
 
 	@Override
 	public void processMessage(String message)
@@ -253,6 +302,29 @@ public class Registration extends GuiScreen implements INetworkMessage
 		
 		if(message.startsWith("SUCCESS"))
 		{
+			if(this.profilePic != null)
+			{
+				NetworkHandler.getNetworkHandler().sendMessage("PIC:NEW=" +gUsername + ","+ imageLoc + "," + String.valueOf(imageSize));
+				
+				try
+				{
+					int count;
+					byte[] bytes = new byte[(int) imageSize];
+					InputStream in = new FileInputStream(profilePic);
+					
+					// Send the file to the server
+					while ((count = in.read(bytes)) > 0)
+					{
+						NetworkHandler.getNetworkHandler().sendBytes(bytes);
+					}
+					in.close();
+				}
+				catch (Exception ee)
+				{
+					ee.printStackTrace();
+				}
+				
+			}
 			showLogin();
 		}
 		else

@@ -1,17 +1,12 @@
 package com.systems.client.network;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 import com.systems.client.gui.Home;
 import com.systems.client.gui.Login;
 import com.systems.client.gui.Registration;
-import com.systems.client.main.Utils;
 
 
 
@@ -24,10 +19,7 @@ public class NetworkHandler extends Thread
 	private static int PORT = 4556;
 	
 	private Socket socket;
-	private BufferedReader in;	
 	private PrintWriter out; 
-	private DataInputStream din;
-	private DataOutputStream dout;
 	
 	/*
 	 * For multi-client handling
@@ -46,7 +38,6 @@ public class NetworkHandler extends Thread
 		try
 		{
 			this.socket = new Socket(address, port);
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(), true);
 		} catch (IOException e)
 		{
@@ -104,25 +95,29 @@ public class NetworkHandler extends Thread
 				
 				while ((count = socket.getInputStream().read(bytes)) > 0)
 				{
-					if(loopCount == 0)
-					{
-						for(int i = 0; i < bytes.length; i++)
-						{
-							if(bytes[i] == 58)
-							{
-								break;
-							}
-							dataType += (char)bytes[i];
-						}
-					}
+//					for(int i = 0; i < bytes.length; i++)
+//						{
+//							if(bytes[i] == 58)
+//							{
+//								break;
+//							}
+//							dataType += (char)bytes[i];
+//						}
+//					}
 					
 					if(count >= 8 * 1024)
 					{
 						message += new String(bytes, 0, count);
+						dataType = message.substring(0, message.indexOf(":"));
+
 					}
 					else
 					{
 						message += new String(bytes, 0, count);
+						if(dataType == "")
+						{
+							dataType = message.substring(0, message.indexOf(":"));
+						}
 						INetworkMessage networkMessage = null;
 						
 						switch (dataType)
