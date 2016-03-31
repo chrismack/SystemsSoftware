@@ -6,8 +6,10 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.SliderUI;
 
+import com.systems.server.gui.Gui;
 import com.systems.server.main.Utils;
 import com.systems.server.network.INetworkMessage;
 import com.systems.server.network.NetworkHandler;
@@ -27,7 +29,7 @@ public class LoginProcessor implements INetworkMessage
 	public void processMessage(String message, Socket socket)
 	{
 		message = message.substring(6);
-		String[] messageArray = message.split("[|]");
+		final String[] messageArray = message.split("[|]");
 		
 		try
 		{

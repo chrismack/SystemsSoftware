@@ -5,9 +5,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.Map;
-
-import com.systems.chatserver.gui.Gui;
 
 public class NetworkHandler extends Thread
 {
@@ -123,15 +120,6 @@ public class NetworkHandler extends Thread
 							if(!connectedUsers.containsKey(message))
 							{
 								connectedUsers.put(usernameFrom, socket);
-								try
-								{
-									synchronized (Gui.INSTANCE.lstConnectedUsers)
-									{
-										Gui.getGui().addUser(usernameFrom);
-									}
-								}
-								catch(NullPointerException e)
-								{}
 							}
 						}
 					}
@@ -157,16 +145,6 @@ public class NetworkHandler extends Thread
 					synchronized (connectedUsers)
 					{
 	         			connectedUsers.values().remove(socket);
-					}
-					try
-					{
-						synchronized (Gui.INSTANCE.lstConnectedUsers)
-						{
-							Gui.INSTANCE.removeUser(getKeyFromValue(connectedUsers, socket));
-						}
-					}
-					catch(NullPointerException e)
-					{
 					}
 					socket.close();
 				} 

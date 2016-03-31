@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 import com.systems.client.gui.GuiScreen;
 import com.systems.client.gui.Home;
 import com.systems.client.gui.Login;
@@ -137,7 +139,7 @@ public class NetworkHandler extends Thread
 							{
 								GuiScreen.INSTANCE.close();
 							}
-							System.exit(1);
+							JOptionPane.showMessageDialog(null, message, "Disconnect", JOptionPane.INFORMATION_MESSAGE);
 							continue;
 						default:
 							message = "";

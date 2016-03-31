@@ -1,12 +1,9 @@
 package com.systems.server.main;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
+import com.systems.server.gui.Gui;
 import com.systems.server.network.NetworkHandler;
 import com.systems.server.sql.SQLHandler;
 
@@ -34,6 +31,8 @@ public class Main
 			e.printStackTrace();
 		}
 		System.out.println("SERVER STARTED");
+		Gui gui = new Gui();
+		gui.init();
 
 	}
 	
