@@ -65,7 +65,7 @@ public class NetworkHandler extends Thread
 				{
 					while(true)
 					{
-						/*this.listener =*/ new NetworkListener(serverSocket.accept()).start();
+						new NetworkListener(serverSocket.accept()).start();
 					}
 				}
 				finally
@@ -85,7 +85,6 @@ public class NetworkHandler extends Thread
 			} 
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

@@ -1,7 +1,6 @@
 package com.systems.client.main;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.systems.client.gui.Registration;
 import com.systems.client.network.NetworkHandler;
@@ -32,7 +31,6 @@ public class Main
 		// Init screen is registration
 		Registration reg = new Registration();
 		reg.init();
-		
 	}
 
 }

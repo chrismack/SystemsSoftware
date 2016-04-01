@@ -91,7 +91,6 @@ public class NetworkHandler extends Thread
 		{
 			try
 			{
-				int loopCount = 0;
 				int count;
 				String message = "";
 				String dataType = "";
@@ -99,21 +98,10 @@ public class NetworkHandler extends Thread
 				
 				while ((count = socket.getInputStream().read(bytes)) > 0)
 				{
-//					for(int i = 0; i < bytes.length; i++)
-//						{
-//							if(bytes[i] == 58)
-//							{
-//								break;
-//							}
-//							dataType += (char)bytes[i];
-//						}
-//					}
-					
 					if(count >= 8 * 1024)
 					{
 						message += new String(bytes, 0, count);
 						dataType = message.substring(0, message.indexOf(":"));
-
 					}
 					else
 					{
@@ -143,7 +131,6 @@ public class NetworkHandler extends Thread
 							{
 								message = "";
 								dataType = "";
-								loopCount = -1;
 								continue;
 							}
 							break;
@@ -157,7 +144,6 @@ public class NetworkHandler extends Thread
 						default:
 							message = "";
 							dataType = "";
-							loopCount = -1;
 							continue;
 						}
 						
@@ -165,9 +151,7 @@ public class NetworkHandler extends Thread
 							networkMessage.processMessage(message);
 						message = "";
 						dataType = "";
-						loopCount = -1;
 					}
-					loopCount++;
 				}
 					
 			} 
