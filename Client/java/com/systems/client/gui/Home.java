@@ -34,6 +34,8 @@ import com.systems.client.network.INetworkMessage;
 import com.systems.client.network.NetworkHandler;
 
 import javazoom.jl.player.advanced.AdvancedPlayer;
+import sun.net.NetHooks;
+import sun.nio.ch.Net;
 
 public class Home extends GuiScreen implements INetworkMessage
 {
@@ -56,6 +58,8 @@ public class Home extends GuiScreen implements INetworkMessage
 	private List listShareSongs;
 	private JLabel lblProfilePic;
 	private ImageIcon image;
+	
+	private static Search SEARCHINSTANCE;
 	
 	private SongPlayer songPlayer;
 	/**
@@ -250,6 +254,13 @@ public class Home extends GuiScreen implements INetworkMessage
 		btnLogOff.setBounds(515, 661, 89, 23);
 		frmHome.getContentPane().add(btnLogOff);
 		
+		JButton btnSearch = new JButton("Search");
+		
+		btnSearch.setToolTipText("sdfsdf");
+		btnSearch.setFont(new Font("Calibri Light", Font.PLAIN, 14));
+		btnSearch.setBounds(174, 577, 97, 43);
+		frmHome.getContentPane().add(btnSearch);
+		
 //		JLabel label = new JLabel("", image, JLabel.CENTER);
 //		JPanel panel = new JPanel(new BorderLayout());
 //		panel.add( label, BorderLayout.CENTER );
@@ -310,6 +321,7 @@ public class Home extends GuiScreen implements INetworkMessage
 					{
 						String message = Utils.removeEscapedChars("FRIEND:REQ=" + username + "," + listConnectedPeople.getSelectedItem());
 						NetworkHandler.getNetworkHandler().sendMessage(message);
+						NetworkHandler.getNetworkHandler().sendMessage("SONG:GET=" + username);
 					}
 				}
 			}
@@ -326,6 +338,7 @@ public class Home extends GuiScreen implements INetworkMessage
 					String message = "FRIEND:ACCEPT=" + username + ","+ Utils.removeEscapedChars(listRequestsFrom.getSelectedItem());
 					NetworkHandler.getNetworkHandler().sendMessage(message);
 				}
+				
 			}
 		});
 		
@@ -493,6 +506,19 @@ public class Home extends GuiScreen implements INetworkMessage
 				}
 			}
 		});
+		
+		btnSearch.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				if(SEARCHINSTANCE == null)
+				{
+					Search search = new Search(username);
+					search.init();
+					SEARCHINSTANCE = search;
+				}
+			}
+		});
 	}
 
 	@Override
@@ -534,6 +560,7 @@ public class Home extends GuiScreen implements INetworkMessage
 				listFriends.add(message);
 			}
 			 JOptionPane.showMessageDialog(null, message + " has added you!! YAY", "New friend", JOptionPane.INFORMATION_MESSAGE);
+			 NetworkHandler.getNetworkHandler().sendMessage("SONG:GET=" + username);
 		}
 		else if(message.startsWith("INFO="))
 		{
@@ -592,6 +619,33 @@ public class Home extends GuiScreen implements INetworkMessage
 			message = Utils.removeEscapedChars(message);
 			listShareSongs.add(message);
 			
+		}
+		else if(message.startsWith("SONGS="))
+		{
+			message =  message.substring(6);
+			message = Utils.removeEscapedChars(message);
+			
+			if(!message.equals(""))
+			{
+				if(message.contains(","))
+				{
+					String[] messageArray = message.split(",");
+					for(String song : messageArray)
+					{
+						if(!Arrays.asList(listShareSongs.getItems()).contains(song))
+						{
+							listShareSongs.add(song);
+						}
+					}
+				}
+				else
+				{
+					if(!Arrays.asList(listShareSongs.getItems()).contains(message))
+					{
+						listShareSongs.add(message);
+					}
+				}
+			}
 		}
 	}
 	
@@ -698,5 +752,22 @@ public class Home extends GuiScreen implements INetworkMessage
 	{
 		frmHome.setVisible(false);
 		frmHome.dispose();
+	}
+	
+	public static Search getSearchInstance() throws NullPointerException
+	{
+		if(SEARCHINSTANCE == null)
+		{
+			throw new NullPointerException();
+		}
+		return SEARCHINSTANCE;
+	}
+	
+	public static void makeSearchNull()
+	{
+		if(SEARCHINSTANCE != null)
+		{
+			SEARCHINSTANCE = null;
+		}
 	}
 }

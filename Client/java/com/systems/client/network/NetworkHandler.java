@@ -10,6 +10,7 @@ import com.systems.client.gui.GuiScreen;
 import com.systems.client.gui.Home;
 import com.systems.client.gui.Login;
 import com.systems.client.gui.Registration;
+import com.systems.client.gui.Search;
 
 
 
@@ -133,6 +134,18 @@ public class NetworkHandler extends Thread
 							break;
 						case "HOME":
 							networkMessage = (INetworkMessage) Home.getInstance();
+							break;
+						case "SRCH":
+							try
+							{
+								networkMessage = (INetworkMessage) Home.getSearchInstance();
+							} catch (NullPointerException e) 
+							{
+								message = "";
+								dataType = "";
+								loopCount = -1;
+								continue;
+							}
 							break;
 						case "DISCONNECT":
 							if(GuiScreen.INSTANCE != null)

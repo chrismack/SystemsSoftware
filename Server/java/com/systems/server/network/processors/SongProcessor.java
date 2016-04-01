@@ -86,6 +86,40 @@ public class SongProcessor implements INetworkMessage
 			// Check we have the file on record
 			sendSong(message, socket);
 		}
+		else if(message.startsWith("GET="))
+		{
+			message = message.substring(4);
+			message = Utils.removeEscapedChars(message);
+			String friendsSongsSQL = "SELECT s.songTitle "
+					   + "FROM Songs s "
+					   + "WHERE s.username IN "
+					   + "(SELECT uf.username "
+					   + "FROM UserFriends uf "
+					   + "WHERE uf.friendUsername = '" + message + "' "
+					   + "AND uf.pending = 'false' "
+					   + "UNION ALL "
+					   + "SELECT uf.friendUsername "
+					   + "FROM UserFriends uf "
+					   + "WHERE uf.username = '" + message + "' AND uf.pending = 'false') "
+					   + "OR s.username = '" + message + "';";
+			ResultSet friendsSongsRS = sqlHandler.eqecuteCommand(friendsSongsSQL);
+			String friendsSongs = "";
+			try
+			{
+				while(friendsSongsRS.next())
+				{
+					friendsSongs += friendsSongsRS.getString(1) + ",";
+				}
+			} catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+			if(friendsSongs.length() > 0)
+			{
+				friendsSongs = friendsSongs.substring(0, friendsSongs.length() - 1);
+				NetworkHandler.getNetwork().sendMessage("HOME:SONGS=" + friendsSongs, socket);
+			}
+		}
 	}
 
 	private void sendSong(String song, Socket socket)

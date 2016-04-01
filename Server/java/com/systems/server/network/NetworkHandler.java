@@ -23,6 +23,7 @@ import com.systems.server.network.processors.ImageProcessor;
 import com.systems.server.network.processors.LoginProcessor;
 import com.systems.server.network.processors.PostProcessor;
 import com.systems.server.network.processors.RegistrationProcessor;
+import com.systems.server.network.processors.SearchProcessor;
 import com.systems.server.network.processors.SongProcessor;
 import com.systems.server.sql.SQLHandler;
 
@@ -177,6 +178,9 @@ public class NetworkHandler extends Thread
 							break;
 						case "PIC":
 							messageProcessor = new ImageProcessor(sqlHandler);
+							break;
+						case "SRCH":
+							messageProcessor = new SearchProcessor(sqlHandler);
 							break;
 						case "LOGOFF":
 							disconnectUser(socket);
