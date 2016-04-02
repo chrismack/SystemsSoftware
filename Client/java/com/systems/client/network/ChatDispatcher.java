@@ -29,6 +29,7 @@ public class ChatDispatcher extends Thread
 			this.socket = new Socket(chatAddress, port);
 			out = new PrintWriter(socket.getOutputStream(), true);
 			this.start();
+			writeMessage("CONNECT:");
 		} catch (UnknownHostException e)
 		{
 			e.printStackTrace();

@@ -97,7 +97,7 @@ public class Home extends GuiScreen implements INetworkMessage
 		this.songs = songs;
 		
 		chats = new ChatDispatcher(username);
-		chats.writeMessage("CONNECT:");
+		
 		initialize();
 	}
 
@@ -352,7 +352,11 @@ public class Home extends GuiScreen implements INetworkMessage
 				if(listFriends.getSelectedIndex() > -1)
 				{
 					NetworkHandler.getNetworkHandler().sendMessage("FRIEND:INFO=" + listFriends.getSelectedItem());
-					File profilePic = new File("img/" + listFriends.getSelectedItem());
+					File imgDir = new File(System.getProperty("user.dir") + "/img/");
+					if(!imgDir.exists())
+						imgDir.mkdirs();
+					
+					File profilePic = new File(imgDir + File.separator + listFriends.getSelectedItem());
 					if(!profilePic.exists())
 					{
 						NetworkHandler.getNetworkHandler().sendMessage("PIC:GET=" + listFriends.getSelectedItem());
@@ -585,13 +589,13 @@ public class Home extends GuiScreen implements INetworkMessage
 			{
 				
 				String[] imgInfo = message.split(",");
-				writeFile("img/" + imgInfo[0], Long.parseLong(imgInfo[1]), NetworkHandler.getNetworkHandler().getServerSocket());
 				
-				File imgDir = new File("img/");
+				File imgDir = new File(System.getProperty("user.dir") + "/img/");
 				if(!imgDir.exists())
-				{
 					imgDir.mkdirs();
-				}
+				
+				writeFile(imgDir + File.separator + imgInfo[0], Long.parseLong(imgInfo[1]), NetworkHandler.getNetworkHandler().getServerSocket());
+				
 				File profilePic = new File(imgDir + "/" + imgInfo[0]);
 				displayNewProfilePic(profilePic);
 			}
@@ -610,8 +614,13 @@ public class Home extends GuiScreen implements INetworkMessage
 			message = message.substring(5);
 			message = Utils.removeEscapedChars(message);
 			String[] messageArray = message.split(",");
-			writeFile("songs/" + messageArray[0], Long.parseLong(messageArray[1]), NetworkHandler.getNetworkHandler().getServerSocket());
-			startSong(messageArray[0]);
+			
+			File songsDir = new File(System.getProperty("user.dir") + "/songs/");
+			if(!songsDir.exists())
+				songsDir.mkdirs();
+			
+			writeFile(songsDir + File.separator + messageArray[0], Long.parseLong(messageArray[1]), NetworkHandler.getNetworkHandler().getServerSocket());
+			startSong(songsDir + File.separator + messageArray[0]);
 		}
 		else if(message.startsWith("NEWSONG="))
 		{
@@ -696,7 +705,6 @@ public class Home extends GuiScreen implements INetworkMessage
 	
 	private void startSong(String file)
 	{
-		file = "songs/" + file;
 		if(this.songPlayer != null)
 		{
 			songPlayer.end();

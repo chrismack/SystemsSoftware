@@ -5,6 +5,7 @@ import java.awt.Choice;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -192,7 +193,9 @@ public class Registration extends GuiScreen implements INetworkMessage
 		btnAddProfilePic.setBounds(321, 257, 137, 23);
 		contentPane.add(btnAddProfilePic);
 		
-		image = new ImageIcon("default.png");
+		
+		File defaultPic = new File("default.png");
+		image = new ImageIcon(defaultPic.getAbsolutePath());
 		lblProfilePic = new JLabel("", image, JLabel.CENTER);
 		lblProfilePic.setBounds(470, 207, 80, 80);
 		contentPane.add(lblProfilePic);

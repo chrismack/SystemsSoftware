@@ -39,8 +39,12 @@ public class ImageProcessor implements INetworkMessage
 			String sqlAddImage = "UPDATE Users SET profilePic = 'true' WHERE username = '" + messageArray[0] + "';";
 			sqlHandler.insertValues(sqlAddImage);
 			
+			File imgDir = new File(System.getProperty("user.dir") + "/img/");
+			if(!imgDir.exists())
+				imgDir.mkdirs();
+			
 			//Save profile pics as username
-			writeFile("img/" + messageArray[0] + getExtension(messageArray[1]), Long.parseLong(messageArray[2]), socket);
+			writeFile(imgDir + File.separator + messageArray[0] + getExtension(messageArray[1]), Long.parseLong(messageArray[2]), socket);
 		}
 		else if(message.startsWith("GET="))
 		{
@@ -54,7 +58,10 @@ public class ImageProcessor implements INetworkMessage
 				{
 					if(sqlHandler.getColsCount(hasImageSQL) > 0)
 					{
-						File profilePic = new File("img/" + message + ".png");
+						File imgDir = new File(System.getProperty("user.dir") + "/img/");
+						if(!imgDir.exists())
+							imgDir.mkdirs();
+						File profilePic = new File(imgDir + File.separator + message + ".png");
 						NetworkHandler.getNetwork().sendMessage("HOME:INFOIMG=" + profilePic.getName() + "," + String.valueOf(profilePic.length()), socket);
 						
 						try

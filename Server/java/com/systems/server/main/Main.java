@@ -1,5 +1,6 @@
 package com.systems.server.main;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -22,7 +23,7 @@ public class Main
 		System.out.println("Server running");
 		try 
 		{
-			SQLHandler sqlHandler = new SQLHandler("D:\\Chris\\Documents\\Uni\\Year Two\\Programming\\Systems\\SystemsSoftware\\testold.db");
+			SQLHandler sqlHandler = new SQLHandler(System.getProperty("user.dir") + File.separator + "testold.db");
 			NetworkHandler networkHandler = new NetworkHandler(sqlHandler);
 			networkHandler.start();
 		} 

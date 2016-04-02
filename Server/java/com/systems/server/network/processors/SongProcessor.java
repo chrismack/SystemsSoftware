@@ -45,7 +45,10 @@ public class SongProcessor implements INetworkMessage
 			String sql = "INSERT INTO Songs(username, songTitle) VALUES('" + username + "','" + fileName + "');";
 			sqlHandler.insertValues(sql);
 			
-			writeFile("songs/" + fileName, fileSize, socket);
+			File songDir = new File(System.getProperty("user.dir") + "/songs/");
+			if(!songDir.exists())
+				songDir.mkdirs();
+			writeFile(songDir + File.separator + fileName, fileSize, socket);
 			
 			//Send the new upload to friends
 			String friendsSQL = "SELECT uf.username "
@@ -128,7 +131,10 @@ public class SongProcessor implements INetworkMessage
 		boolean songExists = sqlHandler.getColsCount(sqlHandler.eqecuteCommand(songExistsSQL)) > 0 ? true : false;
 		if(songExists)
 		{
-			File file = new File("songs/" + song);
+			File songDir = new File(System.getProperty("user.dir") + "/songs/");
+			if(!songDir.exists())
+				songDir.mkdirs();
+			File file = new File(songDir + File.separator + song);
 			if(file.exists())			// We have the file
 			{
 				long fileLength = file.length();
