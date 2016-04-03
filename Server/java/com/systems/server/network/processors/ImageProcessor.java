@@ -1,5 +1,6 @@
 package com.systems.server.network.processors;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -124,12 +125,13 @@ public class ImageProcessor implements INetworkMessage
 		FileOutputStream inF;
 		try
 		{
+			BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
 			inF = new FileOutputStream(new File(fileName));
 		
-			while ((count = socket.getInputStream().read(bytes)) > 0)
+			while ((count = bis.read(bytes)) > 0)
 			{
 				countedBytes += count;	// The number of bytes that have been sent over the socket
-				inF.write(bytes);		// Write the bytes into the file
+				inF.write(bytes, 0, count);		// Write the bytes into the file
 				
 				// If all the expected bytes have been sent
 				if(countedBytes >= fileSize)

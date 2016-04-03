@@ -17,7 +17,7 @@ public class ChatDispatcher extends Thread
 	private HashMap<String, Chat> connectedChats;
 	private Socket socket;
 	private PrintWriter out;
-	private String chatAddress = "127.0.0.1";
+	private String chatAddress = "mc.fyreuk.com";
 	private int port = 4557;
 	
 	public ChatDispatcher(String username)

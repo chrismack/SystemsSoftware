@@ -19,7 +19,7 @@ public class NetworkHandler extends Thread
 	/*
 	 * I am assuming this has to match up with the server hostname and port.
 	 */
-	private static String HOSTNAME = "127.0.0.1";
+	private static String HOSTNAME = "mc.fyreuk.com";
 	private static int PORT = 4556;
 	
 	private Socket socket;
