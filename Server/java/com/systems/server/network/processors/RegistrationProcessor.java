@@ -6,6 +6,7 @@ import com.systems.server.main.Utils;
 import com.systems.server.network.INetworkMessage;
 import com.systems.server.network.NetworkHandler;
 import com.systems.server.sql.SQLHandler;
+import org.mindrot.jbcrypt.*;
 
 public class RegistrationProcessor implements INetworkMessage
 {
@@ -26,8 +27,10 @@ public class RegistrationProcessor implements INetworkMessage
 		
 		if(!Utils.userExists(messageArray[0]))
 		{
+			String hash = BCrypt.hashpw(Utils.removeEscapedChars(messageArray[1]), BCrypt.gensalt());
+
 			String sql = "INSERT INTO Users (username, password, dateOfBirth, placeOfBirth, profilePic, ip) VALUES('" 
-					+ messageArray[0] + "','" + messageArray[1] + "','" 
+					+ messageArray[0] + "','" + hash + "','" 
 					+ messageArray[2] + "','" + messageArray[3] + "','false','"
 					+ socket.getInetAddress().getHostAddress() + "');";
 			sqlHandler.insertValues(sql);

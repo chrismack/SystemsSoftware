@@ -27,7 +27,7 @@ public class SQLHandler
 	    try 
 	    {
 	      Class.forName("org.sqlite.JDBC");
-	      connection = DriverManager.getConnection("jdbc:sqlite:D:\\Chris\\Documents\\Uni\\Year Two\\Programming\\Systems\\SystemsSoftware\\testold.db");
+	      connection = DriverManager.getConnection("jdbc:sqlite:D:\\N0561281\\SysSoftware\\git\\testold.db");
 	    }
 	    catch (Exception e)
 	    {

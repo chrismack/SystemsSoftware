@@ -115,6 +115,7 @@ public class Login extends GuiScreen implements INetworkMessage
 				if(!txtUsername.getText().equals("") || passwordField.getPassword().equals(""))
 				{
 					String passText = new String(passwordField.getPassword());
+					passText = Utils.removeEscapedChars(passText);
 					NetworkHandler.getNetworkHandler().sendMessage("LOGIN:" + txtUsername.getText() + "|" + passText);
 				}
 				else

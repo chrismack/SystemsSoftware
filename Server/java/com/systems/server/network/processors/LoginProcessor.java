@@ -14,6 +14,7 @@ import com.systems.server.main.Utils;
 import com.systems.server.network.INetworkMessage;
 import com.systems.server.network.NetworkHandler;
 import com.systems.server.sql.SQLHandler;
+import org.mindrot.jbcrypt.*;
 
 public class LoginProcessor implements INetworkMessage
 {
@@ -40,7 +41,9 @@ public class LoginProcessor implements INetworkMessage
 					ResultSet userPassword = sqlHandler.eqecuteCommand("SELECT password FROM Users WHERE username = '" + messageArray[0] + "';");
 					if(userPassword.next())
 					{
-						if(messageArray[1].startsWith(userPassword.getString(1)))
+						String pass = Utils.removeEscapedChars(messageArray[1]);
+						String hash = userPassword.getString(1);
+						if(BCrypt.checkpw(pass, userPassword.getString(1)))
 						{
 							/*
 							 * Login success
