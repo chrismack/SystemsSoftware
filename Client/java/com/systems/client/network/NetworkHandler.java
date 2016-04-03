@@ -45,7 +45,9 @@ public class NetworkHandler extends Thread
 			out = new PrintWriter(socket.getOutputStream(), true);
 		} catch (IOException e)
 		{
-			// TODO Auto-generated catch block
+			if(GuiScreen.getInstance() != null)
+				GuiScreen.getInstance().close();
+			JOptionPane.showMessageDialog(null, "Server connection not found", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
 			e.printStackTrace();
 		}
 	}
