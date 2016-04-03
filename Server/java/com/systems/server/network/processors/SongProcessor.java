@@ -153,7 +153,6 @@ public class SongProcessor implements INetworkMessage
 						// Send the file
 						NetworkHandler.getNetwork().sendBytes(bytes, socket);
 					}
-					in.close();
 				}
 				catch (Exception ee)
 				{
@@ -167,7 +166,7 @@ public class SongProcessor implements INetworkMessage
 	{
 		int count = 0;
 		int countedBytes = 0;
-		byte[] bytes = new byte[8 * 1024];
+		byte[] bytes = new byte[10];
 		FileOutputStream inF;
 		try
 		{

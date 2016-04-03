@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.Arrays;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -195,7 +196,6 @@ public class Home extends GuiScreen implements INetworkMessage
 		frmHome.getContentPane().add(btnRequestFriendship);
 		
 		JButton btnChat = new JButton("Chat");
-		btnChat.setToolTipText("sdfsdf");
 		btnChat.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnChat.setBounds(174, 513, 97, 43);
 		frmHome.getContentPane().add(btnChat);
@@ -211,7 +211,6 @@ public class Home extends GuiScreen implements INetworkMessage
 		frmHome.getContentPane().add(lblFriendshipRequestsFrom);
 		
 		JButton btnAccept = new JButton("Accept");
-		btnAccept.setToolTipText("sdfsdf");
 		btnAccept.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnAccept.setBounds(465, 459, 97, 43);
 		frmHome.getContentPane().add(btnAccept);
@@ -256,7 +255,6 @@ public class Home extends GuiScreen implements INetworkMessage
 		
 		JButton btnSearch = new JButton("Search");
 		
-		btnSearch.setToolTipText("sdfsdf");
 		btnSearch.setFont(new Font("Calibri Light", Font.PLAIN, 14));
 		btnSearch.setBounds(174, 577, 97, 43);
 		frmHome.getContentPane().add(btnSearch);
@@ -409,14 +407,21 @@ public class Home extends GuiScreen implements INetworkMessage
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-				File fileCheck = new File(listShareSongs.getSelectedItem());
-				if(!fileCheck.exists())
+				if(listShareSongs.getSelectedIndex() > -1)
 				{
-					NetworkHandler.getNetworkHandler().sendMessage("SONG:LISTEN=" + listShareSongs.getSelectedItem().toString());
-				}
-				else
-				{
-					startSong(listShareSongs.getSelectedItem());
+					File songDir = new File(System.getProperty("user.dir") + "/songs/");
+					if(!songDir.exists())
+						songDir.mkdirs();
+					
+					File fileCheck = new File(songDir + File.separator + listShareSongs.getSelectedItem());
+					if(!fileCheck.exists())
+					{
+						NetworkHandler.getNetworkHandler().sendMessage("SONG:LISTEN=" + listShareSongs.getSelectedItem().toString());
+					}
+					else
+					{
+						startSong(fileCheck.getAbsolutePath());
+					}
 				}
 			}
 		});
@@ -472,7 +477,19 @@ public class Home extends GuiScreen implements INetworkMessage
 			{
 				if(listShareSongs.getSelectedIndex() > -1)
 				{
-					startSong(listShareSongs.getSelectedItem());
+					File songDir = new File(System.getProperty("user.dir") + "/songs/");
+					if(!songDir.exists())
+						songDir.mkdirs();
+					
+					File fileCheck = new File(songDir + File.separator + listShareSongs.getSelectedItem());
+					if(!fileCheck.exists())
+					{
+						NetworkHandler.getNetworkHandler().sendMessage("SONG:LISTEN=" + listShareSongs.getSelectedItem().toString());
+					}
+					else
+					{
+						startSong(fileCheck.getAbsolutePath());
+					}
 				}
 			}
 		});
@@ -583,11 +600,10 @@ public class Home extends GuiScreen implements INetworkMessage
 			message = Utils.removeEscapedChars(message);
 			if(message.equals("SERVER-NOPROFILEPIC"))
 			{
-				displayNewProfilePic(new File("default.png"));
+				displayNewProfilePic(Registration.class.getResourceAsStream("/default.png"));
 			}
 			else
 			{
-				
 				String[] imgInfo = message.split(",");
 				
 				File imgDir = new File(System.getProperty("user.dir") + "/img/");
@@ -658,6 +674,26 @@ public class Home extends GuiScreen implements INetworkMessage
 		}
 	}
 	
+	private void displayNewProfilePic(InputStream resourceAsStream)
+	{
+		if(image != null)
+		{
+			image.getImage().flush();
+			image = null; 
+		}
+		
+		try
+		{
+			image = new ImageIcon(ImageIO.read(resourceAsStream));
+		} catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
+		
+		lblProfilePic.setIcon(image);
+		lblProfilePic.setVisible(true);
+	}
+
 	private void displayNewProfilePic(File file)
 	{
 		if(image != null)
@@ -674,7 +710,7 @@ public class Home extends GuiScreen implements INetworkMessage
 	{
 		int count = 0;
 		int countedBytes = 0;
-		byte[] bytes = new byte[8 * 1024];
+		byte[] bytes = new byte[10];
 		FileOutputStream inF;
 		try
 		{
