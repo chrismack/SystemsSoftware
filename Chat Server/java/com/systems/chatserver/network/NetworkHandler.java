@@ -6,6 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 
+import com.systems.chatserver.main.ChatLogger;
+
 public class NetworkHandler extends Thread
 {
 
@@ -79,10 +81,13 @@ public class NetworkHandler extends Thread
 	{
 		
 		private Socket socket;
+		private ChatLogger logger;
+		
 		
 		public NetworkListener(Socket socket)
 		{
 			this.socket = socket;
+			this.logger = null;
 		}
 		
 		@Override
@@ -107,6 +112,8 @@ public class NetworkHandler extends Thread
 					System.out.println(usernameFrom );
 					System.out.println(usernameTo);
 					System.out.println(message);
+					
+					
 					/*
 					 * Connect message
 					 * should be the first message that is sent to that chat server
@@ -125,12 +132,17 @@ public class NetworkHandler extends Thread
 					}
 					else
 					{
+						logger = new ChatLogger(usernameFrom, usernameTo);
 						synchronized (connectedUsers)
 						{
 							if(connectedUsers.containsKey(usernameTo))
 							{
 								sendMessage(usernameFrom + ":" + message, connectedUsers.get(usernameTo));
 							}
+						}
+						synchronized (logger.getFileWriter())
+						{
+							logger.writeLog(usernameFrom + " : " + message);
 						}
 					}
 				}
