@@ -12,6 +12,7 @@ public class Main
 {
 
 	public static boolean RUNNING = false;
+	public static boolean GUI = true;
 	
 	/**
 	 * @param args
@@ -32,8 +33,18 @@ public class Main
 			e.printStackTrace();
 		}
 		System.out.println("SERVER STARTED");
-		Gui gui = new Gui();
-		gui.init();
+		if(args.length > 0)
+		{
+			if(args[0].equalsIgnoreCase("nogui"))
+			{
+				GUI = false;
+			}
+		}
+		if(GUI == true)
+		{
+			Gui gui = new Gui();
+			gui.init();
+		}
 
 	}
 	
