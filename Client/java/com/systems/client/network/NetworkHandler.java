@@ -19,7 +19,7 @@ public class NetworkHandler extends Thread
 	/*
 	 * I am assuming this has to match up with the server hostname and port.
 	 */
-	private static String HOSTNAME = "127.0.0.1";
+	private static String HOSTNAME = "mc.fyreuk.com";
 	private static int PORT = 4556;
 	
 	private Socket socket;
@@ -45,7 +45,9 @@ public class NetworkHandler extends Thread
 			out = new PrintWriter(socket.getOutputStream(), true);
 		} catch (IOException e)
 		{
-			// TODO Auto-generated catch block
+			if(GuiScreen.getInstance() != null)
+				GuiScreen.getInstance().close();
+			JOptionPane.showMessageDialog(null, "Server connection not found", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
 			e.printStackTrace();
 		}
 	}
