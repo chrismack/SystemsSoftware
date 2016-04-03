@@ -1,5 +1,6 @@
 package com.systems.server.network.processors;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -63,7 +64,7 @@ public class ImageProcessor implements INetworkMessage
 							imgDir.mkdirs();
 						File profilePic = new File(imgDir + File.separator + message + ".png");
 						NetworkHandler.getNetwork().sendMessage("HOME:INFOIMG=" + profilePic.getName() + "," + String.valueOf(profilePic.length()), socket);
-						
+						Thread.sleep(500);
 						try
 						{
 							int count;
@@ -96,6 +97,10 @@ public class ImageProcessor implements INetworkMessage
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			};
 		}
 	}
@@ -115,7 +120,7 @@ public class ImageProcessor implements INetworkMessage
 	{
 		int count = 0;
 		int countedBytes = 0;
-		byte[] bytes = new byte[8 * 1024];
+		byte[] bytes = new byte[10];
 		FileOutputStream inF;
 		try
 		{
