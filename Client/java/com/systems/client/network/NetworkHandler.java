@@ -19,7 +19,7 @@ public class NetworkHandler extends Thread
 	/*
 	 * I am assuming this has to match up with the server hostname and port.
 	 */
-	private static String HOSTNAME = "mc.fyreuk.com";
+	private static String HOSTNAME = "127.0.0.1";
 	private static int PORT = 4556;
 	
 	private Socket socket;
@@ -33,6 +33,10 @@ public class NetworkHandler extends Thread
 	
 	private static NetworkHandler INSTANCE;
 	
+	
+	/*
+	 * Set up connection to the server
+	 */
 	public NetworkHandler()
 	{
 		INSTANCE = this;
@@ -52,6 +56,9 @@ public class NetworkHandler extends Thread
 		}
 	}
 	
+	/*
+	 * Singleton instance of the network handler
+	 */
 	public static NetworkHandler getNetworkHandler()
 	{
 		if(INSTANCE == null)
@@ -61,31 +68,52 @@ public class NetworkHandler extends Thread
 		return INSTANCE;
 	}
 	
+	/*
+	 * Address of the host we are connecting to
+	 */
 	public String getHostName()
 	{
 		return HOSTNAME;
 	}
 	
+	/*
+	 * Port of the host we are connecting to
+	 */
 	public int getPort()
 	{
 		return PORT;
 	}
 	
+	/*
+	 * Instance of the socket to the server
+	 */
 	public Socket getServerSocket()
 	{
 		return this.socket;
 	}
 	
+	/*
+	 * Send text message to the server
+	 */
 	public void sendMessage(String message)
 	{
 		this.out.println(message);
 	}
 	
+	/*
+	 * Send an array of bytes to the server
+	 */
 	public void sendBytes(byte[] b) throws IOException
 	{
 		this.socket.getOutputStream().write(b);
 	}
 
+	/*
+	 * Listen for in coming messages from the server 
+	 * 
+	 * (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	@Override
 	public void run()
 	{
@@ -98,12 +126,12 @@ public class NetworkHandler extends Thread
 				String dataType = "";
 				byte[] bytes = new byte[8 * 1024];
 				
-				while ((count = socket.getInputStream().read(bytes)) > 0)
+				while ((count = socket.getInputStream().read(bytes)) > 0)		//Contains breaking statement will wait for message to be recieved
 				{
-					if(count >= 8 * 1024)
+					if(count >= 8 * 1024)			//If buffer has been exceeded
 					{
-						message += new String(bytes, 0, count);
-						dataType = message.substring(0, message.indexOf(":"));
+						message += new String(bytes, 0, count);						// convert bytes to readable string
+						dataType = message.substring(0, message.indexOf(":"));		// Get first header message from the message
 					}
 					else
 					{
@@ -114,9 +142,9 @@ public class NetworkHandler extends Thread
 						}
 						INetworkMessage networkMessage = null;
 						
-						switch (dataType)
+						switch (dataType)					// Route message to correct location based on the first header message
 						{
-						case "REG":
+						case "REG":		
 							networkMessage = (INetworkMessage) Registration.getInstance();
 							break;
 						case "LOGIN":
@@ -136,7 +164,7 @@ public class NetworkHandler extends Thread
 								continue;
 							}
 							break;
-						case "DISCONNECT":
+						case "DISCONNECT":					// Special case only one header
 							if(GuiScreen.INSTANCE != null)
 							{
 								GuiScreen.INSTANCE.close();

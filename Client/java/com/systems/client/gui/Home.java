@@ -30,26 +30,37 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import javazoom.jl.player.advanced.AdvancedPlayer;
+
 import com.systems.client.main.Utils;
 import com.systems.client.network.ChatDispatcher;
 import com.systems.client.network.INetworkMessage;
 import com.systems.client.network.NetworkHandler;
 
-import javazoom.jl.player.advanced.AdvancedPlayer;
-import sun.net.NetHooks;
-import sun.nio.ch.Net;
-
 public class Home extends GuiScreen implements INetworkMessage
 {
+	/*
+	 * username used to log in with
+	 */
 	private String username;
-	private String[] connectedUsers;
-	private String[] friends;
-	private String[] pendingFriends;
-	private String[] posts;
-	private String[] songs;
-
-	private ChatDispatcher chats;
 	
+	/*
+	 * Existing data that has been sent to the client and needs to be displayed 
+	 */
+	private String[] connectedUsers;	// List of currently connected users
+	private String[] friends;			// List of users friends
+	private String[] pendingFriends;	// List of pending requests they have recieved
+	private String[] posts;				// List of previous posts from friends
+	private String[] songs;				// List of songs that friends have shared
+
+	/*
+	 * Listen for incoming chat requests
+	 */
+	private ChatDispatcher chats;		
+	
+	/*
+	 * GUI components
+	 */
 	private JFrame frmHome;
 	private JTextField textFieldPost;
 	private List listConnectedPeople;
@@ -63,7 +74,7 @@ public class Home extends GuiScreen implements INetworkMessage
 	
 	private static Search SEARCHINSTANCE;
 	
-	private SongPlayer songPlayer;
+	private SongPlayer songPlayer;  
 	/**
 	 * Launch the application.
 	 */
@@ -91,6 +102,8 @@ public class Home extends GuiScreen implements INetworkMessage
 	public Home(String username, String[] connectedUsers, String[] friends, String[] pendingFriends, String[] posts, String[] songs)
 	{
 		INSTANCE = this;
+		
+		// Set existing data
 		this.username = username;
 		this.connectedUsers = connectedUsers;
 		this.friends = friends;
@@ -98,13 +111,18 @@ public class Home extends GuiScreen implements INetworkMessage
 		this.posts = posts;
 		this.songs = songs;
 		
+		// Listen for chat requests
 		chats = new ChatDispatcher(username);
 		
+		// Build the gui
 		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * 
+	 * Build the GUI
+	 * generate code
 	 */
 	private void initialize()
 	{
@@ -478,16 +496,23 @@ public class Home extends GuiScreen implements INetworkMessage
 			{
 				if(listShareSongs.getSelectedIndex() > -1)
 				{
+					/*
+					 * Dir check for songs
+					 */
 					File songDir = new File(System.getProperty("user.dir") + "/songs/");
 					if(!songDir.exists())
 						songDir.mkdirs();
 					
+					/*
+					 * Check if we already have the song or not
+					 */
 					File fileCheck = new File(songDir + File.separator + listShareSongs.getSelectedItem());
 					if(!fileCheck.exists())
 					{
+						// Send listen request to server
 						NetworkHandler.getNetworkHandler().sendMessage("SONG:LISTEN=" + listShareSongs.getSelectedItem().toString());
 					}
-					else
+					else	// We already have the song
 					{
 						startSong(fileCheck.getAbsolutePath());
 					}
@@ -548,12 +573,12 @@ public class Home extends GuiScreen implements INetworkMessage
 	{
 		message = message.substring(5);
 		message = Utils.removeEscapedChars(message);
-		if(message.startsWith("CONNECTUSER="))
+		if(message.startsWith("CONNECTUSER="))		// User has connected
 		{
 			message = message.substring(12);
 			listConnectedPeople.add(message);
 		}
-		else if(message.startsWith("REMOVEUSER="))
+		else if(message.startsWith("REMOVEUSER="))	// User has disconnected
 		{
 			message = message.substring(11);
 			if(Arrays.asList(listConnectedPeople.getItems()).contains(message))
@@ -561,16 +586,16 @@ public class Home extends GuiScreen implements INetworkMessage
 				listConnectedPeople.remove(message);
 			}
 		}
-		else if(message.startsWith("SENTREQ="))
+		else if(message.startsWith("SENTREQ="))		// Confirm that reqest has been sent 
 		{
 			message = message.substring(8);
 		}
-		else if(message.startsWith("RECIEVEDREQ="))
+		else if(message.startsWith("RECIEVEDREQ="))	// User has recieved request from a user
 		{
 			message = message.substring(12);
 			listRequestsFrom.add(message);
 		}
-		else if(message.startsWith("ADDFRIEND="))
+		else if(message.startsWith("ADDFRIEND="))	//Update friend list when request is accepted
 		{
 			message = message.substring(10);
 			if(Arrays.asList(listRequestsFrom.getItems()).contains(message))
@@ -584,7 +609,7 @@ public class Home extends GuiScreen implements INetworkMessage
 			 JOptionPane.showMessageDialog(null, message + " has added you!! YAY", "New friend", JOptionPane.INFORMATION_MESSAGE);
 			 NetworkHandler.getNetworkHandler().sendMessage("SONG:GET=" + username);
 		}
-		else if(message.startsWith("INFO="))
+		else if(message.startsWith("INFO="))	// Friends personal information
 		{
 			listFriendInfo.removeAll();
 			message = message.substring(5);
@@ -595,13 +620,13 @@ public class Home extends GuiScreen implements INetworkMessage
 				listFriendInfo.add(info);
 			}
 		}
-		else if(message.startsWith("INFOIMG="))
+		else if(message.startsWith("INFOIMG="))	// Friends profile picture
 		{
 			message = message.substring(8);
 			message = Utils.removeEscapedChars(message);
 			if(message.equals("SERVER-NOPROFILEPIC"))
 			{
-				displayNewProfilePic(Registration.class.getResourceAsStream("/default.png"));
+				displayNewProfilePic(Registration.class.getResourceAsStream("/default.png"));	// No profile pic found
 			}
 			else
 			{
@@ -617,7 +642,7 @@ public class Home extends GuiScreen implements INetworkMessage
 				displayNewProfilePic(profilePic);
 			}
 		}
-		else if(message.startsWith("POST="))
+		else if(message.startsWith("POST="))		// New post from friend has been recieved
 		{
 			message = message.substring(5);
 			message = Utils.removeEscapedChars(message);
@@ -626,7 +651,7 @@ public class Home extends GuiScreen implements INetworkMessage
 			textArea_FriendsPosts.setText(textArea_FriendsPosts.getText()
 										 + messageArray[0] + " : " + messageArray[2].replaceAll("\\n", "") + "\n");
 		}
-		else if(message.startsWith("PLAY="))
+		else if(message.startsWith("PLAY="))	// New song has been downloaded
 		{
 			message = message.substring(5);
 			message = Utils.removeEscapedChars(message);
@@ -639,14 +664,14 @@ public class Home extends GuiScreen implements INetworkMessage
 			writeFile(songsDir + File.separator + messageArray[0], Long.parseLong(messageArray[1]), NetworkHandler.getNetworkHandler().getServerSocket());
 			startSong(songsDir + File.separator + messageArray[0]);
 		}
-		else if(message.startsWith("NEWSONG="))
+		else if(message.startsWith("NEWSONG="))	// New song has been shared (Not downloaded)
 		{
 			message = message.substring(8);
 			message = Utils.removeEscapedChars(message);
 			listShareSongs.add(message);
 			
 		}
-		else if(message.startsWith("SONGS="))
+		else if(message.startsWith("SONGS="))		// List of shared songs
 		{
 			message =  message.substring(6);
 			message = Utils.removeEscapedChars(message);
@@ -675,6 +700,10 @@ public class Home extends GuiScreen implements INetworkMessage
 		}
 	}
 	
+	/*
+	 * Set the profile image on the screen
+	 * resource stream used for default picture
+	 */
 	private void displayNewProfilePic(InputStream resourceAsStream)
 	{
 		if(image != null)
@@ -695,6 +724,10 @@ public class Home extends GuiScreen implements INetworkMessage
 		lblProfilePic.setVisible(true);
 	}
 
+	/*
+	 * Set the profile image on the screen
+	 * file used for downloaded images
+	 */
 	private void displayNewProfilePic(File file)
 	{
 		if(image != null)
@@ -707,6 +740,12 @@ public class Home extends GuiScreen implements INetworkMessage
 		lblProfilePic.setVisible(true);
 	}
 	
+	/*
+	 * Write array of bytes recieved from server to a file
+	 * String file name is the name and extension of the file
+	 * Long fileSize the number of bytes that are expected
+	 * Socket is an instance of the Server socket
+	 */
 	private void writeFile(String fileName, long fileSize, Socket socket)
 	{
 		int count = 0;
@@ -717,7 +756,7 @@ public class Home extends GuiScreen implements INetworkMessage
 		{
 			BufferedInputStream	bis = new BufferedInputStream(socket.getInputStream());
 			inF = new FileOutputStream(new File(fileName));
-			while ((count = bis.read(bytes)) > 0)
+			while ((count = bis.read(bytes)) > 0)		// Listen for packets from the server 
 			{
 				countedBytes += count;	// The number of bytes that have been sent over the socket
 				inF.write(bytes, 0, count);		// Write the bytes into the file
@@ -740,6 +779,9 @@ public class Home extends GuiScreen implements INetworkMessage
 		}
 	}
 	
+	/*
+	 * Start a song in the Song player class
+	 */
 	private void startSong(String file)
 	{
 		if(this.songPlayer != null)
@@ -751,6 +793,9 @@ public class Home extends GuiScreen implements INetworkMessage
 		songPlayer.start();
 	}
 	
+	/*
+	 * Stop a song in the songPlayer class
+	 */
 	private void stopSong()
 	{
 		if(this.songPlayer != null)
@@ -760,6 +805,9 @@ public class Home extends GuiScreen implements INetworkMessage
 		}
 	}
 
+	/*
+	 * Uses JavaZoom to play MP3 files
+	 */
 	private class SongPlayer extends Thread
 	{
 		private String fileName;
@@ -775,6 +823,12 @@ public class Home extends GuiScreen implements INetworkMessage
 			this.player.close();
 		}
 		
+		/*
+		 * Read file and play audio in new thread
+		 * 
+		 * (non-Javadoc)
+		 * @see java.lang.Thread#run()
+		 */
 		@Override
 		public void run()
 		{
@@ -792,15 +846,28 @@ public class Home extends GuiScreen implements INetworkMessage
 		}
 	}
 	
+	/*
+	 * When the home screen is closed
+	 * 
+	 * (non-Javadoc)
+	 * @see com.systems.client.gui.GuiScreen#close()
+	 */
 	@Override
 	public void close()
 	{
+		
+		/*
+		 * Stop any songs that are playing
+		 */
 		if(songPlayer != null)
 			songPlayer.end();
 		frmHome.setVisible(false);
 		frmHome.dispose();
 	}
 	
+	/*
+	 * Get instance of the search GUI
+	 */
 	public static Search getSearchInstance() throws NullPointerException
 	{
 		if(SEARCHINSTANCE == null)
@@ -810,6 +877,9 @@ public class Home extends GuiScreen implements INetworkMessage
 		return SEARCHINSTANCE;
 	}
 	
+	/*
+	 * remove instance of search GUI
+	 */
 	public static void makeSearchNull()
 	{
 		if(SEARCHINSTANCE != null)

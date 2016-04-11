@@ -78,18 +78,6 @@ public class Chat
 		panel.setLayout(null);
 		
 		textFieldChat = new JTextField();
-//		textFieldChat.addActionListener(new ActionListener() 
-//		{
-//			public void actionPerformed(ActionEvent e) 
-//			{
-//				if(textFieldChat.getText() != "")
-//				{
-//					textArea.setText(textArea.getText() + textFieldChat.getText() + "\n");
-//					textFieldChat.setText("");
-//					dispatcher.writeMessage(username + ":" + textFieldChat.getText());
-//				}
-//			}
-//		});
 		textFieldChat.setBounds(10, 278, 500, 20);
 		panel.add(textFieldChat);
 		textFieldChat.setColumns(10);
@@ -111,13 +99,6 @@ public class Chat
 		{
 			public void actionPerformed(ActionEvent e) 
 			{
-//				if(textFieldChat.getText() != "")
-//				{
-//					textArea.setText(textArea.getText() + un + " : " + textFieldChat.getText() + "\n");
-//					dispatcher.writeMessage(username + " : " + textFieldChat.getText());
-//					textFieldChat.setText("");
-//				}
-				
 				if(textFieldChat.getText() != "")
 				{
 					textArea.setText(textArea.getText() + un + ":" + textFieldChat.getText() + "\n");
@@ -142,11 +123,17 @@ public class Chat
 		
 	}
 	
+	/*
+	 * Focus the window and bring to the from
+	 */
 	public void toFront()
 	{
 		frmChat.toFront();
 	}
 	
+	/*
+	 * writes messages to the screen if user has disconnected will notify that client that other client isn't connected
+	 */
 	public void newMessage(String message)
 	{
 		if(message.contains("I HAVE CLOSED THE CHAT"))

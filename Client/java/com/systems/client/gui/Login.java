@@ -24,6 +24,9 @@ public class Login extends GuiScreen implements INetworkMessage
 	private JTextField txtUsername;
 	private JLabel lblError;
 	
+	/*
+	 * List of all existing data
+	 */
 	private String[] connectedUsers = {};
 	private String[] friends = {};
 	private String[] pendingFriends = {};
@@ -62,6 +65,7 @@ public class Login extends GuiScreen implements INetworkMessage
 
 	/**
 	 * Initialize the contents of the frame.
+	 * Build the gui
 	 */
 	private void initialize()
 	{
@@ -128,6 +132,12 @@ public class Login extends GuiScreen implements INetworkMessage
 		
 	}
 
+	/*
+	 * Messages from the network
+	 * 
+	 * (non-Javadoc)
+	 * @see com.systems.client.network.INetworkMessage#processMessage(java.lang.String)
+	 */
 	@Override
 	public void processMessage(String netMessage)
 	{
@@ -136,42 +146,42 @@ public class Login extends GuiScreen implements INetworkMessage
 		{
 			message = message.substring(6);
 			message = Utils.removeEscapedChars(message);
-			if (message.startsWith("FAIL"))
+			if (message.startsWith("FAIL"))			// Login has been denyed 
 			{
 				lblError.setText("Could not log in please try again");
 			}
-			else if (message.startsWith("CONNECTED="))
+			else if (message.startsWith("CONNECTED="))	// List of currently connected users
 			{
 				message = message.substring(10);
 				message = Utils.removeEscapedChars(message);
 				connectedUsers = message.split(",");
 			}
-			else if(message.startsWith("FRIENDS="))
+			else if(message.startsWith("FRIENDS="))		//existing friends the user has
 			{
 				message = message.substring(8);
 				message = Utils.removeEscapedChars(message);
 				friends = message.split(",");
 			}
-			else if(message.startsWith("PENDING="))
+			else if(message.startsWith("PENDING="))		//Pending requests the user has
 			{
 				message = message.substring(8);
 				message = Utils.removeEscapedChars(message);
 				pendingFriends = message.split(",");
 			}
-			else if(message.startsWith("POSTS="))
+			else if(message.startsWith("POSTS="))		// Previous posts from the user hand their friends 
 			{
 				message = message.substring(6);
 				message = Utils.removeEscapedChars(message);
 				message = message.replaceAll("[|]", " : ");
 				posts = message.split(",");
 			}
-			else if(message.startsWith("SONGS="))
+			else if(message.startsWith("SONGS="))		// List of songs shared with them
 			{
 				message = message.substring(6);
 				message = Utils.removeEscapedChars(message);
 				songs = message.split(",");
 			}
-			else if(message.startsWith("SUCCESS"))
+			else if(message.startsWith("SUCCESS"))		// Loggin has been allowed
 			{
 				Home home = new Home(txtUsername.getText(), connectedUsers, friends, pendingFriends, posts, songs);
 				home.init();
@@ -181,6 +191,12 @@ public class Login extends GuiScreen implements INetworkMessage
 		}
 	}
 	
+	/*
+	 * On window close
+	 * 
+	 * (non-Javadoc)
+	 * @see com.systems.client.gui.GuiScreen#close()
+	 */
 	@Override
 	public void close()
 	{

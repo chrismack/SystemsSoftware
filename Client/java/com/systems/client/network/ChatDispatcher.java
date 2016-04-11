@@ -9,6 +9,9 @@ import java.util.Map.Entry;
 
 import com.systems.client.gui.Chat;
 
+/*
+ * Used to handle different chat windows and incomming messages
+ */
 public class ChatDispatcher extends Thread
 {
 	
@@ -20,6 +23,9 @@ public class ChatDispatcher extends Thread
 	private String chatAddress = "mc.fyreuk.com";
 	private int port = 4557;
 	
+	/*
+	 * set up connection to the chat server
+	 */
 	public ChatDispatcher(String username)
 	{
 		this.username = username;
@@ -29,7 +35,7 @@ public class ChatDispatcher extends Thread
 			this.socket = new Socket(chatAddress, port);
 			out = new PrintWriter(socket.getOutputStream(), true);
 			this.start();
-			writeMessage("CONNECT:");
+			writeMessage("CONNECT:");			//send connect message to the server to say we are able to chat
 		} catch (UnknownHostException e)
 		{
 			e.printStackTrace();
@@ -39,12 +45,19 @@ public class ChatDispatcher extends Thread
 		}
 	}
 	
+	/*
+	 * Write a message with our username prefixed
+	 */
 	public void writeMessage(String message)
 	{
 		// Writes our name to we can be identified
 		this.out.println(username + ":" + message);
 		
 	}
+	
+	/*
+	 * Open the chat window and set that window to be focused
+	 */
 	public void openChat(String user)
 	{
 		// If a chat has already been opened with a specific user
@@ -62,22 +75,27 @@ public class ChatDispatcher extends Thread
 		}
 	}
 	
+	/*
+	 * Listen for messages from the server, should only recieve chat messages
+	 * 
+	 * (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	@Override
 	public void run()
 	{
-		int count = 0;
-		byte[] bytes = new byte[1024 * 4];
+		int count = 0;							// Number of bytes recieved
+		byte[] bytes = new byte[1024 * 4];		// Message buffer
 		String user = "";
 		String message = "";
 		try
 		{
-			while((count = this.socket.getInputStream().read(bytes)) > 0)
+			while((count = this.socket.getInputStream().read(bytes)) > 0)		//Contains break condition will wait until message has been recieved
 			{
-				message = new String(bytes, 0, count);
+				message = new String(bytes, 0, count);		// Convert the bytes into a string
 				// Gets the text upto the first :
 				user = message.substring(0, message.indexOf(":"));
-				message = removeEscapedChars(message);
-				message = removeEscapedChars(message);
+				message = removeEscapedChars(message);	
 				
 				synchronized (connectedChats)
 				{
@@ -106,6 +124,10 @@ public class ChatDispatcher extends Thread
 		return noEsc;
 	}
 
+	/*
+	 * called when window is closed to a specific user
+	 * removes them from connected users
+	 */
 	public void closeChat(String user)
 	{
 		if(this.connectedChats.containsKey(user))
@@ -114,6 +136,9 @@ public class ChatDispatcher extends Thread
 		}
 	}
 
+	/*
+	 * Send message to all connected clients that we are no longer connected
+	 */
 	public void closeAllChats()
 	{
 		for(Entry<String, Chat> chats : connectedChats.entrySet())

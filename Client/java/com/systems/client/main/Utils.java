@@ -6,6 +6,9 @@ import java.security.NoSuchAlgorithmException;
 public class Utils
 {
 	
+	/*
+	 * Hash pass words using sha-256
+	 */
 	public static String hashPassword(String password)
 	{
 		MessageDigest messageDigest;
@@ -26,6 +29,9 @@ public class Utils
 		return noQuote;
 	}
 	
+	/*
+	 * Remove all special characters from strings
+	 */
 	public static String removeEscapedChars(String str)
 	{
 		String noEsc = str.replaceAll("[\r\n\t\b\f\"\']", "");
