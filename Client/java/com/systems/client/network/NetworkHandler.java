@@ -19,7 +19,7 @@ public class NetworkHandler extends Thread
 	/*
 	 * I am assuming this has to match up with the server hostname and port.
 	 */
-	private static String HOSTNAME = "127.0.0.1";
+	private static String HOSTNAME = "localhost";
 	private static int PORT = 4556;
 	
 	private Socket socket;
@@ -131,14 +131,28 @@ public class NetworkHandler extends Thread
 					if(count >= 8 * 1024)			//If buffer has been exceeded
 					{
 						message += new String(bytes, 0, count);						// convert bytes to readable string
-						dataType = message.substring(0, message.indexOf(":"));		// Get first header message from the message
+						if(message.contains(":"))
+						{
+							dataType = message.substring(0, message.indexOf(":"));		// Get first header message from the message
+						}
+						else
+						{
+							continue;
+						}
 					}
 					else
 					{
 						message += new String(bytes, 0, count);
 						if(dataType == "")
 						{
-							dataType = message.substring(0, message.indexOf(":"));
+							if(message.contains(":"))
+							{
+								dataType = message.substring(0, message.indexOf(":"));
+							}
+							else
+							{
+								continue;
+							}
 						}
 						INetworkMessage networkMessage = null;
 						

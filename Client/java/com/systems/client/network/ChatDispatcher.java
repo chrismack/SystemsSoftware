@@ -20,7 +20,7 @@ public class ChatDispatcher extends Thread
 	private HashMap<String, Chat> connectedChats;
 	private Socket socket;
 	private PrintWriter out;
-	private String chatAddress = "mc.fyreuk.com";
+	private String chatAddress = "localhost";
 	private int port = 4557;
 	
 	/*

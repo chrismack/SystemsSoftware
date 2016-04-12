@@ -46,6 +46,10 @@ public class ImageProcessor implements INetworkMessage
 				imgDir.mkdirs();
 			
 			//Save profile pics as username
+			System.out.println(messageArray[0]);
+			System.out.println(messageArray[1]);
+			System.out.println(messageArray[2]);
+			
 			writeFile(imgDir + File.separator + messageArray[0] + getExtension(messageArray[1]), Long.parseLong(messageArray[2]), socket);
 		}
 		else if(message.startsWith("GET="))
